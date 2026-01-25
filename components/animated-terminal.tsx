@@ -117,7 +117,7 @@ export function AnimatedTerminal() {
             {/* Terminal Content */}
             <div
               ref={containerRef}
-              className="p-4 font-mono text-sm h-72 overflow-y-auto glass-subtle"
+              className="p-4 font-mono text-sm h-72 overflow-y-auto glass-subtle no-font-change"
             >
               {visibleLines.map((line, index) => (
                 <div

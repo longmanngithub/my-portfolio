@@ -84,7 +84,7 @@ export function ProjectsSection() {
                 </div>
 
                 {/* Code Content */}
-                <div className="p-4 font-mono text-sm glass-subtle">
+                <div className="p-4 font-mono text-sm glass-subtle no-font-change">
                   {project.code.map((line, lineIndex) => (
                     <div key={lineIndex} className="leading-6">
                       <span className="text-muted-foreground/40 mr-4 select-none text-xs">
