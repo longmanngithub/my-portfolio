@@ -142,7 +142,7 @@
   }
 
   html {
-    @apply bg-background;
+    background-color: var(--background);
   }
 
   /* Smooth card elevation during theme switch */
