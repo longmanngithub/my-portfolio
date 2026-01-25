@@ -1,9 +1,16 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_LOGIN: ${{ secrets.GITHUB_LOGIN }}
+
     steps:
       - uses: actions/checkout@v4
 
