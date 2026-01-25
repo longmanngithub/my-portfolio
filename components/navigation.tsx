@@ -15,6 +15,8 @@ function NavLink({ href, label, isActive, onClick }: { href: string; label: stri
   const linkRef = useRef<HTMLAnchorElement>(null)
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    
     // Create ripple effect
     if (linkRef.current) {
       const rect = linkRef.current.getBoundingClientRect()
@@ -27,6 +29,13 @@ function NavLink({ href, label, isActive, onClick }: { href: string; label: stri
       setTimeout(() => {
         setRipples(prev => prev.filter(r => r.id !== newRipple.id))
       }, 600)
+    }
+    
+    // Smooth scroll to section
+    const sectionId = href.replace('#', '')
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
     }
     
     onClick()
@@ -81,10 +90,23 @@ function NavLink({ href, label, isActive, onClick }: { href: string; label: stri
 function MobileNavLink({ href, label, isActive, onClick, delay }: { href: string; label: string; isActive: boolean; onClick: () => void; delay: number }) {
   const [isPressed, setIsPressed] = useState(false)
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    
+    // Smooth scroll to section
+    const sectionId = href.replace('#', '')
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+    
+    onClick()
+  }
+
   return (
     <a
       href={href}
-      onClick={onClick}
+      onClick={handleClick}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
       onMouseLeave={() => setIsPressed(false)}
@@ -248,7 +270,15 @@ export function Navigation() {
           <div className="px-4 md:px-6 py-3 flex items-center justify-between">
             {/* Logo with Profile Picture and Sound Wave */}
             <div className="flex items-center gap-3">
-              <a href="#" className="flex items-center gap-3 group">
+              <a 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault()
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  setActiveSection("")
+                }}
+                className="flex items-center gap-3 group"
+              >
                 <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-cyan-400/30 group-hover:border-cyan-400 transition-colors duration-300">
                   <Image
                     src="/profile.png"
@@ -407,7 +437,10 @@ export function Navigation() {
                   className="w-full mt-3 py-5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold transition-colors duration-200"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
-                    window.location.href = "#contact"
+                    const element = document.getElementById('contact')
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' })
+                    }
                   }}
                 >
                   {t("nav.getInTouch")}

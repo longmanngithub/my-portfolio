@@ -28,15 +28,25 @@ export default function Home() {
         <div className="relative z-10">
           <Navigation />
           <HeroSection />
-          <AboutSection />
+          <section id="about">
+            <AboutSection />
+          </section>
           <AnimatedTerminal />
-          <TechStackSection />
-          <ToolsStackSection />
-          <ProjectsSection />
-          <GitHubStatsSection />
-          <MindsetSection />
-          <AchievementsSection />
-          <section className="py-16 px-6">
+          <section id="tech">
+            <TechStackSection />
+            <ToolsStackSection />
+          </section>
+          <section id="projects">
+            <ProjectsSection />
+          </section>
+          <section id="github">
+            <GitHubStatsSection />
+          </section>
+          <section id="achievements">
+            <MindsetSection />
+            <AchievementsSection />
+          </section>
+          <section id="resume" className="py-16 px-6">
             <div className="max-w-2xl mx-auto">
               <div className="mb-8 text-center">
                 <p className="text-primary text-sm tracking-wider mb-2">{t("resume.label") || "// Resume"}</p>
@@ -45,7 +55,9 @@ export default function Home() {
               <ResumeCard />
             </div>
           </section>
-          <ContactSection />
+          <section id="contact">
+            <ContactSection />
+          </section>
         </div>
       </main>
     </LanguageWrapper>
