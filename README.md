@@ -1,4 +1,4 @@
-# Sovandara Rith | Portfolio
+# Henglong Loeung | Portfolio
 
 A modern, interactive portfolio application built with **Next.js 16** and **React 19**. This project showcases my work as a Computer Science student and Web & Mobile Developer, featuring a highly polished UI, internationalization support, and advanced interactive elements.
 
