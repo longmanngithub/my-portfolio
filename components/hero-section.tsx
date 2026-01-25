@@ -20,7 +20,7 @@ export function HeroSection() {
               <div className="absolute -inset-1 bg-gradient-to-r from-primary/40 to-accent/40 rounded-full blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative w-28 h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-3 border-primary/40 shadow-xl theme-transition-card">
                 <Image
-                  src="/profile.PNG"
+                  src="/profile.png"
                   alt="Henglong Loeung"
                   fill
                   className="object-cover"
