@@ -32,6 +32,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_LOGIN: ${{ secrets.GH_LOGIN }}
         run: pnpm build
-
-      - name: Deploy (optional - add your deployment step here)
-        run: echo "Add your deployment command here"
