@@ -6,6 +6,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  turbopack: {
+    root: process.cwd(),
+  },
+  // Allow development access from local network (iPhone, other devices)
+  allowedDevOrigins: ['192.168.3.74'],
   
   // Security Headers
   async headers() {
@@ -50,16 +55,16 @@ const nextConfig = {
             value: [
               // Default to self
               "default-src 'self'",
-              // Scripts: self + inline for Next.js hydration + Vercel Analytics
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
+              // Scripts: self + inline for Next.js hydration + Vercel Analytics + webpack HMR
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live",
               // Styles: self + inline for styled-components/emotion/tailwind
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // Images: self + data URIs + common image hosts
               "img-src 'self' data: blob: https:",
               // Fonts: self + Google Fonts
-              "font-src 'self' https://fonts.gstatic.com",
-              // Connections: self + Vercel Analytics
-              "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+              "font-src 'self' data: https://fonts.gstatic.com",
+              // Connections: self + Vercel Analytics + webpack HMR
+              "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com wss://localhost:* ws://localhost:*",
               // Media: self for music player
               "media-src 'self' blob:",
               // Frames: allow fitness app demo
@@ -72,8 +77,6 @@ const nextConfig = {
               "base-uri 'self'",
               // Object/embed: none
               "object-src 'none'",
-              // Upgrade insecure requests
-              "upgrade-insecure-requests",
             ].join("; "),
           },
           {
