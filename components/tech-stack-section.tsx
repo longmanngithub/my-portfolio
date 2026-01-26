@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef } from "react"
 
 import * as Icons from "simple-icons"
 
@@ -130,17 +130,23 @@ export function TechStackSection() {
 
 function FloatingLogoCloud() {
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const sectionRef = useRef<HTMLDivElement | null>(null)
+  const isVisibleRef = useRef(false)
   const yawRef = useRef(0)
   const pitchRef = useRef(0)
   const targetYawRef = useRef<number | null>(null)
   const targetPitchRef = useRef<number | null>(null)
-  const idleYawRef = useRef(0.35) // rad/s
-  const idlePitchRef = useRef(0.08)
+  const clickTimeRef = useRef<number>(0)
+  const clickAnimStartTimeRef = useRef<number>(0)
+  const clickStartYawRef = useRef<number>(0)
+  const clickStartPitchRef = useRef<number>(0)
+  const logoRefsRef = useRef<Map<string, HTMLDivElement>>(new Map())
   const rafRef = useRef<number>()
-  const throttleRef = useRef<number>(0)
-    const clickTimeRef = useRef<number>(0)
-  const [, forceTick] = useState(0)
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const isMobileRef = useRef(typeof window !== "undefined" && window.innerWidth < 768)
+  const lastTouchRef = useRef<{ x: number; y: number } | null>(null)
+  const isHoveringRef = useRef(false)
+  const pointerAngleRef = useRef<{ angle: number; distance: number } | null>(null)
+  const lastPointerAngleRef = useRef<number | null>(null)
 
   const items = useMemo(() => {
     const count = floatingLogos.length
@@ -155,39 +161,180 @@ function FloatingLogoCloud() {
     })
   }, [])
 
+  // Direct DOM manipulation for maximum performance
+  const updateLogos = useRef((yaw: number, pitch: number) => {
+    const isMobile = isMobileRef.current
+    const mobileScale = isMobile ? 0.8 : 1.2
+    const projectionRadius = isMobile ? 38 : 32
+    
+    // Batch DOM updates for better performance
+    items.forEach((logo) => {
+      const el = logoRefsRef.current.get(logo.key)
+      if (!el || !logo.base) return
+
+      const rotated = rotatePoint(logo.base, yaw, pitch)
+      const scale = 0.8 + ((rotated.z + 1) / 2) * 0.5
+      const depth = rotated.z * (isMobile ? 180 : 260)
+      const depthFactor = (rotated.z + 1) / 2
+      // Gradual fade for back objects, full brightness for front/center
+      const opacity = depthFactor > 0.6 ? 1 : 0.15 + Math.pow(depthFactor / 0.6, 1.5) * 0.35
+      const zIndex = Math.round((rotated.z + 1) * 1000)
+
+      // Use single transform for all positioning and scaling
+      const finalScale = scale * mobileScale
+      const left = 50 + rotated.x * projectionRadius
+      const top = 50 + rotated.y * projectionRadius
+      const transformValue = `translate(-50%, -50%) translate3d(0, 0, ${depth}px) scale(${finalScale})`
+      
+      // Batch style updates in single write with GPU acceleration hints
+      el.style.cssText = `
+        position: absolute;
+        left: ${left}%;
+        top: ${top}%;
+        transform: ${transformValue};
+        width: ${logo.size}px;
+        height: ${logo.size}px;
+        opacity: ${opacity};
+        z-index: ${zIndex};
+        will-change: transform, opacity;
+        -webkit-backface-visibility: hidden;
+        -webkit-perspective: 1000;
+        pointer-events: none;
+        cursor: pointer;
+      `
+    })
+  }).current
+
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const clickX = ((e.clientX - rect.left) / rect.width) * 100
+    const clickY = ((e.clientY - rect.top) / rect.height) * 100
+
+    // Find closest logo to click position
+    let closestLogo: typeof items[0] | null = null
+    let minDist = Infinity
+
+    items.forEach((logo) => {
+      if (!logo.base) return
+      const rotated = rotatePoint(logo.base, yawRef.current, pitchRef.current)
+      const projectionRadius = isMobileRef.current ? 42 : 32
+      const logoX = 50 + rotated.x * projectionRadius
+      const logoY = 50 + rotated.y * projectionRadius
+      const dist = Math.sqrt((logoX - clickX) ** 2 + (logoY - clickY) ** 2)
+      
+      if (dist < minDist && dist < 8) { // Within ~8% radius
+        minDist = dist
+        closestLogo = logo
+      }
+    })
+
+    if (closestLogo && closestLogo.base) {
+      const targetRotation = pointToFront(closestLogo.base)
+      clickStartYawRef.current = yawRef.current
+      clickStartPitchRef.current = pitchRef.current
+      targetYawRef.current = yawRef.current + normalizeAngleDiff(targetRotation.yaw - yawRef.current)
+      targetPitchRef.current = pitchRef.current + normalizeAngleDiff(targetRotation.pitch - pitchRef.current)
+      clickAnimStartTimeRef.current = performance.now()
+      clickTimeRef.current = performance.now()
+    }
+  }
+
   useEffect(() => {
+    // Set up Intersection Observer to pause animation when not visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const wasVisible = isVisibleRef.current
+          isVisibleRef.current = entry.isIntersecting
+          
+          // If just became visible, immediately update positions
+          if (!wasVisible && entry.isIntersecting) {
+            updateLogos(yawRef.current, pitchRef.current)
+          }
+        })
+      },
+      { threshold: 0.1 } // Trigger when at least 10% is visible
+    )
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current)
+    }
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [updateLogos])
+
+  useEffect(() => {
+    // Initial position on mount
+    updateLogos(yawRef.current, pitchRef.current)
+    
     let last = performance.now()
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768
-    const frameSkip = isMobile ? 2 : 1 // light load on mobile, full rate on desktop
-    let frameCount = 0
+    const baseIdleYaw = 0.08
+    const baseIdlePitch = 0.03
 
     const step = (now: number) => {
       const dt = (now - last) / 1000
       last = now
 
+      // Skip animation updates if section is not visible or tab is hidden, but keep the RAF loop running
+      if (!isVisibleRef.current || (typeof document !== "undefined" && document.visibilityState === "hidden")) {
+        rafRef.current = requestAnimationFrame(step)
+        return
+      }
+
+      // Varied idle animation using sine waves for organic motion
+      const time = now / 1000
+      const idleYaw = baseIdleYaw + Math.sin(time * 0.3) * 0.05
+      const idlePitch = baseIdlePitch + Math.cos(time * 0.5) * 0.02
+
       if (targetYawRef.current !== null && targetPitchRef.current !== null) {
-        yawRef.current = lerpAngle(yawRef.current, targetYawRef.current, Math.min(1, dt * 3))
-        pitchRef.current = lerpAngle(pitchRef.current, targetPitchRef.current, Math.min(1, dt * 3))
+        // Animating to clicked target with ease-in-out
+        const duration = 0.7
+        const elapsed = (now - clickAnimStartTimeRef.current) / 1000
+        const t = Math.min(Math.max(elapsed / duration, 0), 1)
+        const eased = easeOutCubic(t)
+
+        const yawDelta = normalizeAngleDiff((targetYawRef.current ?? 0) - clickStartYawRef.current)
+        const pitchDelta = normalizeAngleDiff((targetPitchRef.current ?? 0) - clickStartPitchRef.current)
+
+        yawRef.current = clickStartYawRef.current + yawDelta * eased
+        pitchRef.current = clickStartPitchRef.current + pitchDelta * eased
         
-        // Reset to idle when close enough to target OR after timeout
-        const yawDiff = Math.abs(normalizeAngle(targetYawRef.current - yawRef.current))
-        const pitchDiff = Math.abs(normalizeAngle(targetPitchRef.current - pitchRef.current))
-        const timeSinceClick = (now - clickTimeRef.current) / 1000
-        if ((yawDiff < 0.02 && pitchDiff < 0.02) || timeSinceClick > 0.7) {
+        if (t >= 1) {
+          // Store the direction of movement for continuing idle animation
+          const angle = Math.atan2(pitchDelta, yawDelta)
+          lastPointerAngleRef.current = angle
           targetYawRef.current = null
           targetPitchRef.current = null
         }
-      } else {
-        yawRef.current += idleYawRef.current * dt
-        pitchRef.current += idlePitchRef.current * dt
+      } else if (isHoveringRef.current && pointerAngleRef.current) {
+        // Continuous rotation based on pointer direction
+        const { angle, distance } = pointerAngleRef.current
+        const distanceFactor = Math.min(distance, 1)
+        const rotationSpeed = distanceFactor * 1.0
+        // Rotate in opposite direction of pointer
+        yawRef.current += Math.cos(angle) * rotationSpeed * dt
+        pitchRef.current += Math.sin(angle) * rotationSpeed * dt
+      } else if (!isHoveringRef.current && lastPointerAngleRef.current !== null) {
+        // Idle rotation - continue in same direction as pointer was moving
+        const angle = lastPointerAngleRef.current
+        const rotationSpeed = 0.5 * 0.5 // Start with half speed in idle
+        yawRef.current += Math.cos(angle) * rotationSpeed * dt
+        pitchRef.current += Math.sin(angle) * rotationSpeed * dt
+      } else if (!isHoveringRef.current && !isMobileRef.current) {
+        // Desktop idle rotation when no pointer interaction
+        // (Mobile has continuous idle handled separately)
+        yawRef.current += idleYaw * dt
+        pitchRef.current += idlePitch * dt
+      } else if (isMobileRef.current) {
+        // Mobile always has idle animation
+        yawRef.current += idleYaw * dt
+        pitchRef.current += idlePitch * dt
       }
 
-      // Only update state on specific frames for performance
-      frameCount++
-      if (frameCount % frameSkip === 0) {
-        forceTick((x) => x + 1)
-      }
-      
+      updateLogos(yawRef.current, pitchRef.current)
       rafRef.current = requestAnimationFrame(step)
     }
 
@@ -195,82 +342,76 @@ function FloatingLogoCloud() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
-  }, [])
-
-  const yaw = yawRef.current
-  const pitch = pitchRef.current
-  const isMobileRender = typeof window !== "undefined" && window.innerWidth < 768
-  const mobileScaleRender = isMobileRender ? 0.45 : 1
-  const blurMax = isMobileRender ? 4 : 6
-  const blurFactor = isMobileRender ? 2.5 : 4
+  }, [items, updateLogos])
 
   return (
     <div
-      ref={containerRef}
-      className="relative mx-auto aspect-[3/2] w-full overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-background/70 via-secondary/10 to-background/80 shadow-[0_30px_120px_rgba(0,0,0,0.15)]"
-      onMouseMove={(event) => {
-        if (!containerRef.current) return
-        const now = Date.now()
-        if (now - throttleRef.current < 16) return // Throttle to ~60fps
-        throttleRef.current = now
-        
+      ref={(el) => {
+        containerRef.current = el
+        sectionRef.current = el
+      }}
+      className="relative mx-auto aspect-square md:aspect-[3/2] w-full overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-background/70 via-secondary/10 to-background/80 shadow-[0_30px_120px_rgba(0,0,0,0.15)] touch-none cursor-pointer"
+      onClick={handleContainerClick}
+      onMouseMove={(e) => {
+        if (!containerRef.current || isMobileRef.current) return
+        isHoveringRef.current = true
         const rect = containerRef.current.getBoundingClientRect()
-        const nx = (event.clientX - rect.left) / rect.width - 0.5
-        const ny = (event.clientY - rect.top) / rect.height - 0.5
-        targetYawRef.current = yawRef.current + nx * 0.8
-        targetPitchRef.current = pitchRef.current + ny * 0.6
-        setTilt({ x: nx * 12, y: ny * -12 })
+        const centerX = rect.width / 2
+        const centerY = rect.height / 2
+        const x = e.clientX - rect.left - centerX
+        const y = e.clientY - rect.top - centerY
+        // Calculate angle and distance for continuous directional rotation
+        const angle = Math.atan2(y, x)
+        const distance = Math.sqrt(x * x + y * y) / Math.sqrt(centerX * centerX + centerY * centerY)
+        pointerAngleRef.current = { angle, distance }
       }}
       onMouseLeave={() => {
-        targetYawRef.current = null
-        targetPitchRef.current = null
-        setTilt({ x: 0, y: 0 })
+        if (pointerAngleRef.current) {
+          lastPointerAngleRef.current = pointerAngleRef.current.angle
+        }
+        isHoveringRef.current = false
+        pointerAngleRef.current = null
+      }}
+      onTouchMove={(e) => {
+        e.preventDefault() // Prevent scrolling
+        if (!containerRef.current || e.touches.length === 0) return
+        const touch = e.touches[0]
+        const currentX = touch.clientX
+        const currentY = touch.clientY
+        
+        if (lastTouchRef.current) {
+          // Calculate drag distance and rotate accordingly
+          const deltaX = currentX - lastTouchRef.current.x
+          const deltaY = currentY - lastTouchRef.current.y
+          yawRef.current += deltaX * 0.01
+          pitchRef.current -= deltaY * 0.01
+        }
+        
+        lastTouchRef.current = { x: currentX, y: currentY }
+      }}
+      onTouchStart={(e) => {
+        e.preventDefault() // Prevent scrolling
+        if (e.touches.length > 0) {
+          lastTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+        }
+      }}
+      onTouchEnd={() => {
+        lastTouchRef.current = null
       }}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.08),transparent_35%),radial-gradient(circle_at_80%_70%,rgba(236,72,153,0.08),transparent_38%)]" />
 
-      <div
-        className="absolute inset-0 origin-center"
-        style={{
-          transform: `perspective(1200px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
-          transition: "transform 160ms ease-out",
-        }}
-      >
+      <div className="absolute inset-0" style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}>
         {items.map((logo) => {
-          if (!logo.base) return null
-          const rotated = rotatePoint(logo.base, yaw, pitch)
-          const scale = 0.8 + ((rotated.z + 1) / 2) * 0.5
-          const left = 50 + rotated.x * 32
-          const top = 50 + rotated.y * 32
-          const depth = rotated.z * (isMobileRender ? 180 : 260)
-          const depthFactor = (rotated.z + 1) / 2 // 0 (far back) -> 1 (front)
-          const opacity = depthFactor > 0.8 ? 1 : 0.35 + depthFactor * 0.65
-
           return (
             <div
               key={logo.key}
+              ref={(el) => {
+                if (el) logoRefsRef.current.set(logo.key, el)
+              }}
               className="logo-chip"
-              style={{
-                left: `${left}%`,
-                top: `${top}%`,
-                width: `${logo.size * scale * mobileScaleRender}px`,
-                height: `${logo.size * scale * mobileScaleRender}px`,
-                transform: `translate3d(-50%, -50%, ${depth}px) scale(${scale})`,
-                opacity,
-                zIndex: Math.round((rotated.z + 1) * 1000),
-                filter: (() => {
-                  const blurAmount = rotated.z < 0 ? Math.min(Math.abs(rotated.z) * blurFactor, blurMax) : 0
-                  return blurAmount > 0 ? `blur(${blurAmount}px)` : "none"
-                })(),
-              }}
-              onClick={() => {
-                const targetRotation = pointToFront(logo.base!)
-                targetYawRef.current = targetRotation.yaw
-                targetPitchRef.current = targetRotation.pitch
-                              clickTimeRef.current = performance.now()
-              }}
             >
-              <div className="flex h-full w-full items-center justify-center transition duration-300 ease-out hover:scale-110">
+              <div className="flex h-full w-full items-center justify-center">
                 <LogoIcon name={logo.key} />
               </div>
             </div>
@@ -281,11 +422,13 @@ function FloatingLogoCloud() {
       <style jsx global>{`
         .logo-chip {
           position: absolute;
-          will-change: transform, opacity;
+          transform-style: preserve-3d;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
-          -webkit-transform: translateZ(0);
-          transform: translateZ(0);
+          -webkit-transform-style: preserve-3d;
+          -webkit-font-smoothing: antialiased;
+          -webkit-perspective: 1000;
+          pointer-events: none;
         }
       `}</style>
     </div>
@@ -297,12 +440,24 @@ function normalizeAngle(angle: number) {
   return ((angle % twoPi) + twoPi) % twoPi
 }
 
+function normalizeAngleDiff(diff: number) {
+  const twoPi = Math.PI * 2
+  const normalized = ((diff % twoPi) + twoPi) % twoPi
+  return normalized > Math.PI ? normalized - twoPi : normalized
+}
+
+function easeInOutCubic(t: number) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+}
+
+function easeOutCubic(t: number) {
+  const inv = 1 - t
+  return 1 - inv * inv * inv
+}
+
 function lerpAngle(from: number, to: number, t: number) {
-  const a = normalizeAngle(from)
-  const b = normalizeAngle(to)
-  const diff = normalizeAngle(b - a)
-  const shortest = diff > Math.PI ? diff - Math.PI * 2 : diff
-  return normalizeAngle(a + shortest * t)
+  const diff = to - from
+  return from + diff * t
 }
 
 function rotatePoint(p: { x: number; y: number; z: number }, yaw: number, pitch: number) {
