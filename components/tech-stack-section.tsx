@@ -93,10 +93,6 @@ export function TechStackSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t("tech.title")}</h2>
         </div>
 
-        <p className="max-w-3xl text-muted-foreground text-sm md:text-base leading-relaxed mb-10">
-          3D sphere tag cloud: hover to steer, click to bring a logo to the front, idle keeps a slow spin.
-        </p>
-
         <FloatingLogoCloud />
 
         <div className="grid md:grid-cols-3 gap-8 mt-12">
@@ -141,6 +137,8 @@ function FloatingLogoCloud() {
   const idleYawRef = useRef(0.35) // rad/s
   const idlePitchRef = useRef(0.08)
   const rafRef = useRef<number>()
+  const throttleRef = useRef<number>(0)
+    const clickTimeRef = useRef<number>(0)
   const [, forceTick] = useState(0)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
 
@@ -159,6 +157,10 @@ function FloatingLogoCloud() {
 
   useEffect(() => {
     let last = performance.now()
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768
+    const frameSkip = isMobile ? 2 : 1 // light load on mobile, full rate on desktop
+    let frameCount = 0
+
     const step = (now: number) => {
       const dt = (now - last) / 1000
       last = now
@@ -166,12 +168,26 @@ function FloatingLogoCloud() {
       if (targetYawRef.current !== null && targetPitchRef.current !== null) {
         yawRef.current = lerpAngle(yawRef.current, targetYawRef.current, Math.min(1, dt * 3))
         pitchRef.current = lerpAngle(pitchRef.current, targetPitchRef.current, Math.min(1, dt * 3))
+        
+        // Reset to idle when close enough to target OR after timeout
+        const yawDiff = Math.abs(normalizeAngle(targetYawRef.current - yawRef.current))
+        const pitchDiff = Math.abs(normalizeAngle(targetPitchRef.current - pitchRef.current))
+        const timeSinceClick = (now - clickTimeRef.current) / 1000
+        if ((yawDiff < 0.02 && pitchDiff < 0.02) || timeSinceClick > 0.7) {
+          targetYawRef.current = null
+          targetPitchRef.current = null
+        }
       } else {
         yawRef.current += idleYawRef.current * dt
         pitchRef.current += idlePitchRef.current * dt
       }
 
-      forceTick((x) => x + 1)
+      // Only update state on specific frames for performance
+      frameCount++
+      if (frameCount % frameSkip === 0) {
+        forceTick((x) => x + 1)
+      }
+      
       rafRef.current = requestAnimationFrame(step)
     }
 
@@ -183,6 +199,10 @@ function FloatingLogoCloud() {
 
   const yaw = yawRef.current
   const pitch = pitchRef.current
+  const isMobileRender = typeof window !== "undefined" && window.innerWidth < 768
+  const mobileScaleRender = isMobileRender ? 0.45 : 1
+  const blurMax = isMobileRender ? 4 : 6
+  const blurFactor = isMobileRender ? 2.5 : 4
 
   return (
     <div
@@ -190,6 +210,10 @@ function FloatingLogoCloud() {
       className="relative mx-auto aspect-[3/2] w-full overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-background/70 via-secondary/10 to-background/80 shadow-[0_30px_120px_rgba(0,0,0,0.15)]"
       onMouseMove={(event) => {
         if (!containerRef.current) return
+        const now = Date.now()
+        if (now - throttleRef.current < 16) return // Throttle to ~60fps
+        throttleRef.current = now
+        
         const rect = containerRef.current.getBoundingClientRect()
         const nx = (event.clientX - rect.left) / rect.width - 0.5
         const ny = (event.clientY - rect.top) / rect.height - 0.5
@@ -216,12 +240,11 @@ function FloatingLogoCloud() {
           if (!logo.base) return null
           const rotated = rotatePoint(logo.base, yaw, pitch)
           const scale = 0.8 + ((rotated.z + 1) / 2) * 0.5
-          const isMobile = typeof window !== "undefined" && window.innerWidth < 768
-          const mobileScale = isMobile ? 0.45 : 1
           const left = 50 + rotated.x * 32
           const top = 50 + rotated.y * 32
-          const depth = rotated.z * 260
-          const opacity = 0.65 + ((rotated.z + 1) / 2) * 0.35
+          const depth = rotated.z * (isMobileRender ? 180 : 260)
+          const depthFactor = (rotated.z + 1) / 2 // 0 (far back) -> 1 (front)
+          const opacity = depthFactor > 0.8 ? 1 : 0.35 + depthFactor * 0.65
 
           return (
             <div
@@ -230,17 +253,21 @@ function FloatingLogoCloud() {
               style={{
                 left: `${left}%`,
                 top: `${top}%`,
-                width: `${logo.size * scale * mobileScale}px`,
-                height: `${logo.size * scale * mobileScale}px`,
+                width: `${logo.size * scale * mobileScaleRender}px`,
+                height: `${logo.size * scale * mobileScaleRender}px`,
                 transform: `translate3d(-50%, -50%, ${depth}px) scale(${scale})`,
                 opacity,
                 zIndex: Math.round((rotated.z + 1) * 1000),
-                filter: rotated.z < 0 ? `blur(${Math.abs(rotated.z) * 2}px)` : "blur(0px)",
+                filter: (() => {
+                  const blurAmount = rotated.z < 0 ? Math.min(Math.abs(rotated.z) * blurFactor, blurMax) : 0
+                  return blurAmount > 0 ? `blur(${blurAmount}px)` : "none"
+                })(),
               }}
               onClick={() => {
                 const targetRotation = pointToFront(logo.base!)
                 targetYawRef.current = targetRotation.yaw
                 targetPitchRef.current = targetRotation.pitch
+                              clickTimeRef.current = performance.now()
               }}
             >
               <div className="flex h-full w-full items-center justify-center transition duration-300 ease-out hover:scale-110">
@@ -255,6 +282,10 @@ function FloatingLogoCloud() {
         .logo-chip {
           position: absolute;
           will-change: transform, opacity;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
         }
       `}</style>
     </div>
