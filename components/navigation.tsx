@@ -219,13 +219,22 @@ export function Navigation() {
   }, [])
 
   const toggleTheme = useCallback(() => {
-    setIsFlashing(true)
+    const html = document.documentElement
+    
+    // Disable all transitions for instant theme change
+    html.classList.add('theme-switching')
+    
+    // Change theme immediately
+    setTheme(resolvedTheme === "dark" ? "light" : "dark")
+    
+    // Remove transition block and show flash after a brief moment
     setTimeout(() => {
-      setTheme(resolvedTheme === "dark" ? "light" : "dark")
-    }, 150)
-    setTimeout(() => {
-      setIsFlashing(false)
-    }, 600)
+      html.classList.remove('theme-switching')
+      setIsFlashing(true)
+      setTimeout(() => {
+        setIsFlashing(false)
+      }, 600)
+    }, 50)
   }, [resolvedTheme, setTheme])
 
   const handleSearch = (href: string) => {
@@ -238,30 +247,35 @@ export function Navigation() {
   return (
     <>
       {/* Lightning Flash Overlay for Theme Transition */}
-      <div
-        className={`fixed inset-0 z-[100] pointer-events-none ${
-          isFlashing ? "lightning-flash" : "opacity-0"
-        }`}
-      >
-        {/* Main flash */}
-        <div 
-          className={`absolute inset-0 ${isFlashing ? "animate-lightning" : ""}`}
+      {mounted && isFlashing && (
+        <div
+          className="fixed left-0 right-0 z-[100] pointer-events-none lightning-flash"
           style={{
-            background: resolvedTheme === "dark" 
+            top: '100px',
+            bottom: '100px',
+            maxWidth: '100vw'
+          }}
+        >
+          {/* Main flash */}
+          <div 
+            className="absolute inset-0 animate-lightning"
+            style={{
+              background: resolvedTheme === "dark" 
               ? "radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.9) 0%, rgba(200,230,255,0.6) 20%, rgba(100,180,255,0.3) 40%, transparent 70%)"
               : "radial-gradient(ellipse at 50% 30%, rgba(0,0,0,0.7) 0%, rgba(20,30,50,0.5) 20%, rgba(10,20,40,0.2) 40%, transparent 70%)"
           }}
         />
         {/* Secondary flash burst */}
         <div 
-          className={`absolute inset-0 ${isFlashing ? "animate-flash-burst" : ""}`}
+          className="absolute inset-0 animate-flash-burst"
           style={{
             background: resolvedTheme === "dark"
               ? "conic-gradient(from 0deg at 50% 40%, transparent 0deg, rgba(255,255,255,0.4) 30deg, transparent 60deg, rgba(200,240,255,0.3) 120deg, transparent 180deg, rgba(255,255,255,0.2) 240deg, transparent 300deg)"
               : "conic-gradient(from 0deg at 50% 40%, transparent 0deg, rgba(0,0,0,0.3) 30deg, transparent 60deg, rgba(20,30,60,0.2) 120deg, transparent 180deg, rgba(0,0,0,0.15) 240deg, transparent 300deg)"
           }}
         />
-      </div>
+        </div>
+      )}
       
       <nav className="fixed top-4 left-4 right-4 z-50">
         <div
