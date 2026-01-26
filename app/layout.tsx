@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { JetBrains_Mono, Kantumruy_Pro } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -19,6 +19,12 @@ const kantumruyPro = Kantumruy_Pro({
   variable: "--font-khmer",
 })
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+}
+
 export const metadata: Metadata = {
   title: "Henglong Loeung | Portfolio",
   description: "Year 3 Computer Science Student · Web & Mobile Developer",
@@ -31,6 +37,9 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
+  other: {
+    'format-detection': 'telephone=no',
+  },
 }
 
 export default function RootLayout({
@@ -40,11 +49,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${jetbrainsMono.variable} ${kantumruyPro.variable}`}>
+      <head>
+      </head>
       <body className={`font-mono antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          enableSystem={false}
           disableTransitionOnChange={false}
         >
           <LanguageProvider>
