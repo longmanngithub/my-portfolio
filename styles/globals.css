@@ -121,6 +121,15 @@
     @apply border-border outline-ring/50;
   }
 
+  /* Disable all transitions during theme switch for instant Safari update */
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: none !important;
+    animation-duration: 0s !important;
+  }
+
   /* Smooth theme transition on all elements */
   *,
   *::before,
@@ -143,12 +152,17 @@
     color-scheme: light dark;
     transition: background-color 400ms cubic-bezier(0.4, 0, 0.2, 1), 
                 color 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    /* Force Safari to repaint on theme change */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   html {
     background-color: var(--background);
-    color-scheme: light dark;
     transition: background-color 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    /* Force Safari iOS to repaint the entire viewport on theme change */
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .light {
@@ -157,6 +171,15 @@
 
   .dark {
     color-scheme: dark;
+  }
+  
+  /* Ensure Safari reads color-scheme immediately on html element */
+  html.light {
+    color-scheme: light !important;
+  }
+  
+  html.dark {
+    color-scheme: dark !important;
   }
 
   /* Smooth card elevation during theme switch */
