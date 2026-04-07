@@ -141,7 +141,7 @@ function FloatingLogoCloud() {
   const clickStartYawRef = useRef<number>(0)
   const clickStartPitchRef = useRef<number>(0)
   const logoRefsRef = useRef<Map<string, HTMLDivElement>>(new Map())
-  const rafRef = useRef<number>()
+  const rafRef = useRef<number>(undefined)
   const isMobileRef = useRef(typeof window !== "undefined" && window.innerWidth < 768)
   const lastTouchRef = useRef<{ x: number; y: number } | null>(null)
   const isHoveringRef = useRef(false)
@@ -212,7 +212,7 @@ function FloatingLogoCloud() {
     const clickY = ((e.clientY - rect.top) / rect.height) * 100
 
     // Find closest logo to click position
-    let closestLogo: typeof items[0] | null = null
+    let closestLogo: any = null
     let minDist = Infinity
 
     items.forEach((logo) => {

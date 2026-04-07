@@ -20,9 +20,9 @@ const nextConfig = {
         source: "/:path*",
         headers: [
           {
-            // Prevent clickjacking attacks
+            // Allow same-origin iframes (needed for AI Hand demo)
             key: "X-Frame-Options",
-            value: "DENY",
+            value: "SAMEORIGIN",
           },
           {
             // Prevent MIME type sniffing
@@ -45,9 +45,9 @@ const nextConfig = {
             value: "max-age=31536000; includeSubDomains; preload",
           },
           {
-            // Control browser features/APIs
+            // Control browser features/APIs — allow camera for AI Hand demo
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+            value: "camera=(self), microphone=(), geolocation=(), browsing-topics=()",
           },
           {
             // Content Security Policy - hardened but allows necessary resources
@@ -55,28 +55,30 @@ const nextConfig = {
             value: [
               // Default to self
               "default-src 'self'",
-              // Scripts: self + inline for Next.js hydration + Vercel Analytics + webpack HMR
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live",
+              // Scripts: self + inline for Next.js hydration + Vercel Analytics + CDN libs (Three.js, MediaPipe)
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vercel.live https://unpkg.com https://cdn.jsdelivr.net https://threejs.org",
               // Styles: self + inline for styled-components/emotion/tailwind
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // Images: self + data URIs + common image hosts
               "img-src 'self' data: blob: https:",
               // Fonts: self + Google Fonts
               "font-src 'self' data: https://fonts.gstatic.com",
-              // Connections: self + Vercel Analytics + webpack HMR
-              "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com wss://localhost:* ws://localhost:*",
+              // Connections: self + Vercel Analytics + webpack HMR + CDN libs
+              "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://unpkg.com https://cdn.jsdelivr.net https://threejs.org wss://localhost:* ws://localhost:*",
               // Media: self for music player
               "media-src 'self' blob:",
-              // Frames: allow fitness app demo
+              // Frames: allow fitness app demo + self for AI Hand demo
               "frame-src 'self' https://track-your-fitness-beta.vercel.app",
-              // Frame ancestors: none (prevent being embedded)
-              "frame-ancestors 'none'",
+              // Frame ancestors: allow self (for iframe embedding)
+              "frame-ancestors 'self'",
               // Form actions: self only
               "form-action 'self'",
               // Base URI: self only
               "base-uri 'self'",
               // Object/embed: none
               "object-src 'none'",
+              // Worker: needed for MediaPipe WASM
+              "worker-src 'self' blob:",
             ].join("; "),
           },
           {

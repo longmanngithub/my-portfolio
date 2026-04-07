@@ -69,9 +69,17 @@ const translations: Record<Language, Record<string, string>> = {
     "projects.ecoInventoryTitle": "EcoInventory",
     "projects.ecoInventoryDesc": "E-Commerce inventory management system built using Laravel technology for both frontend and backend using API as a central system.",
 
-    "projects.performativeDetectorTitle": "Performative Detector",
-    "projects.performativeDetectorDesc": "A fun Python project using MediaPipe and computer vision to detect when you're holding a cup and plays music on Spotify.",
+    "projects.scan2AttendTitle": "Scan2Attend",
+    "projects.scan2AttendDesc": "An IoT-powered classroom attendance system using ESP32 and fingerprint scanning, synced to a Laravel backend with offline SD card queuing.",
 
+    "projects.localEventsTitle": "Local Event Discovery Platform",
+    "projects.localEventsDesc": "Inherited a multi-app Laravel event platform from another team, fixed 8+ critical bugs, redesigned the entire UI, and deployed it to DigitalOcean with Cloudflare R2 storage.",
+
+    "projects.aiHandTitle": "AI Hand Interaction System",
+    "projects.aiHandDesc": "A real-time 3D particle simulation controlled by hand gestures via webcam. Built with Three.js and Google MediaPipe, featuring 5 mathematical shapes and neon post-processing VFX.",
+
+    "projects.notepadTitle": "NotePad",
+    "projects.notepadDesc": "My very first project — a Windows Notepad replica built with Python and PyQt5 in late 2023, before I started university. Where my Computer Science journey began.",
 
     // Mindset Section
     "mindset.label": "// Engineering Mindset",
@@ -171,8 +179,17 @@ const translations: Record<Language, Record<string, string>> = {
     "projects.ecoInventoryTitle": "EcoInventory",
     "projects.ecoInventoryDesc": "ប្រព័ន្ធគ្រប់គ្រងសារពើភ័ណ្ឌ E-Commerce ដែលបានបង្កើតដោយប្រើបច្ចេកវិទ្យា Laravel សម្រាប់ទាំងផ្នែកមុខ និងផ្នែកខាងក្រោយដោយប្រើ API ជាប្រព័ន្ធមួយកណ្តាល។",
     
-    "projects.performativeDetectorTitle": "Performative Detector",
-    "projects.performativeDetectorDesc": "គម្រោង Python ដែលគួរឱ្យចាប់អារម្មណ៍មួយប្រើ MediaPipe និង computer vision ដើម្បីរកមើលពេលដែលអ្នកកាន់កែវ ហើយចាក់តន្ត្រីលើ Spotify។",
+    "projects.scan2AttendTitle": "Scan2Attend",
+    "projects.scan2AttendDesc": "ប្រព័ន្ធវត្តមានបន្ទប់រៀន IoT ដែលប្រើ ESP32 និងស្កែនម្រាមដៃ ភ្ជាប់ជាមួយ Laravel backend ជាមួយនឹងការរក្សាទុកក្នុង SD card ពេលគ្មានអ៊ីនធើណិត។",
+
+    "projects.localEventsTitle": "Local Event Discovery Platform",
+    "projects.localEventsDesc": "ទទួលកូដពីក្រុមផ្សេង កែកំហុស ៨+ ធ្ងន់ រចនា UI ទាំងអស់ និង Deploy ទៅ DigitalOcean ជាមួយ Cloudflare R2 storage។",
+
+    "projects.aiHandTitle": "AI Hand Interaction System",
+    "projects.aiHandDesc": "ក្រាហ្វិក 3D ដែលគ្រប់គ្រងដោយកាយវិការដៃតាម webcam។ បង្កើតដោយ Three.js និង MediaPipe ជាមួយរូបរាង ៥ និង VFX នេអុង។",
+
+    "projects.notepadTitle": "NotePad",
+    "projects.notepadDesc": "គម្រោងដំបូងបំផុតរបស់ខ្ញុំ — ការចម្លង Windows Notepad ដែលបង្កើតដោយ Python និង PyQt5 នៅចុងឆ្នាំ ២០២៣ មុនពេលចូលសាកលវិទ្យាល័យ។",
 
     // Mindset Section
     "mindset.label": "// ផ្នត់គំនិត",

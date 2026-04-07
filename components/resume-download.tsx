@@ -15,8 +15,8 @@ export function ResumeDownload() {
     
     // Create download link
     const link = document.createElement("a")
-    link.href = "/resume/Henglong_Loeung_Resume.pdf"
-    link.download = "Henglong_Loeung_Resume.pdf"
+    link.href = "/Henglong-Loeung_CV.pdf"
+    link.download = "Henglong-Loeung_CV.pdf"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -52,7 +52,7 @@ export function ResumeDownload() {
           </>
         ) : (
           <>
-            Download Resume ↓
+            Download CV ↓
           </>
         )}
       </span>
@@ -86,13 +86,13 @@ export function ResumeCard() {
             
             {/* Info */}
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground mb-1">Henglong Loeung - Resume</h3>
+              <h3 className="font-semibold text-foreground mb-1">Henglong Loeung - CV</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Full-Stack Developer · Computer Science Student
               </p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
                 <span className="bg-secondary/60 px-2 py-1 rounded">Updated 2026</span>
-                <span className="bg-secondary/60 px-2 py-1 rounded">~150 KB</span>
+                <span className="bg-secondary/60 px-2 py-1 rounded">~122 KB</span>
               </div>
               <ResumeDownload />
             </div>

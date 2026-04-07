@@ -16,7 +16,7 @@ const achievements = [
     description: "Opened pull requests that have been merged",
     tier: "gold",
     icon: "🦈",
-    count: 1,
+    count: 2,
   },
 //   {
 //     id: "arctic-code-vault",
