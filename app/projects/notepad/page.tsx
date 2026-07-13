@@ -2,10 +2,32 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Github, Calendar, Clock, Users, Heart, FileText, Save, Printer, Type, AlignLeft, Bold, Italic, Underline, Palette, Undo2, Redo2, FileDown, CheckCircle2, Sparkles, Code2, Layers } from "lucide-react"
+import ArrowLeft from "@mui/icons-material/ArrowBack"
+import Github from "@mui/icons-material/GitHub"
+import Calendar from "@mui/icons-material/CalendarMonth"
+import Clock from "@mui/icons-material/Schedule"
+import Users from "@mui/icons-material/People"
+import Heart from "@mui/icons-material/Favorite"
+import FileText from "@mui/icons-material/Description"
+import Save from "@mui/icons-material/Save"
+import Printer from "@mui/icons-material/Print"
+import Type from "@mui/icons-material/TextFields"
+import AlignLeft from "@mui/icons-material/FormatAlignLeft"
+import Bold from "@mui/icons-material/FormatBold"
+import Italic from "@mui/icons-material/FormatItalic"
+import Underline from "@mui/icons-material/FormatUnderlined"
+import Palette from "@mui/icons-material/Palette"
+import Undo2 from "@mui/icons-material/Undo"
+import Redo2 from "@mui/icons-material/Redo"
+import FileDown from "@mui/icons-material/FileDownload"
+import CheckCircle2 from "@mui/icons-material/CheckCircle"
+import Sparkles from "@mui/icons-material/AutoAwesome"
+import Code2 from "@mui/icons-material/Code"
+import Layers from "@mui/icons-material/Layers"
 import Link from "next/link"
+import { Reveal } from "@/components/reveal"
 import { useState, useEffect } from "react"
-import { type LucideIcon } from "lucide-react"
+import type { SvgIconComponent as LucideIcon } from "@mui/icons-material"
 
 const techStack = [
   { name: "Python", category: "Language" },
@@ -87,13 +109,13 @@ export default function NotepadCaseStudy() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="text-[16px]" />
             <span className="text-sm sm:text-base">Back</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <a href="https://github.com/longmanngithub/NotePad" target="_blank" rel="noopener noreferrer">
               <Button variant="outline" size="sm" className="border-border bg-transparent text-xs sm:text-sm px-2.5 sm:px-3 h-8 sm:h-9">
-                <Github className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                <Github className="text-[14px] sm:text-[16px] mr-1.5 sm:mr-2" />
                 <span className="hidden sm:inline">View Code</span>
                 <span className="sm:hidden">Code</span>
               </Button>
@@ -112,15 +134,15 @@ export default function NotepadCaseStudy() {
                   Case Study
                 </Badge>
                 <Badge variant="outline" className="border-amber-500 text-amber-500">
-                  <Heart className="h-3 w-3 mr-1 fill-amber-500" />
+                  <Heart className="text-[12px] mr-1 fill-amber-500" />
                   Where It All Began
                 </Badge>
                 <Badge variant="outline" className="border-green-500 text-green-500">
-                  ● Pinned
+                  Pinned
                 </Badge>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
-                Note<span className="text-primary text-glow">Pad</span>
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-[-0.03em] text-foreground">
+                Note<span className="text-primary">Pad</span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground">
                 My very first project ever — a fully-featured Windows Notepad replica built with Python and PyQt5 in late 2023, before I even started university. This is where I fell in love with Computer Science.
@@ -128,15 +150,15 @@ export default function NotepadCaseStudy() {
               
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-primary" />
+                  <Calendar className="text-[16px] text-primary" />
                   <span>Late 2023</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary" />
+                  <Clock className="text-[16px] text-primary" />
                   <span>Personal Project</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
+                  <Users className="text-[16px] text-primary" />
                   <span>Solo</span>
                 </div>
               </div>
@@ -153,7 +175,7 @@ export default function NotepadCaseStudy() {
             {/* Animated NotePad Mockup */}
             <div className="relative mt-8 lg:mt-0">
               <div className="absolute -inset-2 sm:-inset-4 bg-primary/10 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl" />
-              <div className="relative bg-card border border-border rounded-xl sm:rounded-2xl overflow-hidden glow-cyan">
+              <div className="relative bg-card border border-border rounded-2xl sm:rounded-2xl overflow-hidden glow-cyan">
                 {/* Title bar */}
                 <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-secondary/50 border-b border-border">
                   <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500/80" />
@@ -175,7 +197,7 @@ export default function NotepadCaseStudy() {
                 <div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-secondary/20 border-b border-border flex-wrap">
                   {[FileText, Save, Bold, Italic, Underline, AlignLeft, Undo2, Redo2, Palette, Printer].map((Icon, i) => (
                     <div key={i} className="p-1 sm:p-1.5 rounded hover:bg-primary/10 transition-colors">
-                      <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
+                      <Icon className="text-[12px] sm:text-[14px] text-muted-foreground" />
                     </div>
                   ))}
                 </div>
@@ -192,7 +214,7 @@ export default function NotepadCaseStudy() {
                 </div>
               </div>
               <p className="text-center text-[11px] sm:text-xs text-muted-foreground mt-3 sm:mt-4 px-2">
-                ↑ Animated recreation of the PyQt5 NotePad interface
+                Animated recreation of the PyQt5 NotePad interface
               </p>
             </div>
           </div>
@@ -200,14 +222,14 @@ export default function NotepadCaseStudy() {
       </section>
 
       {/* The Origin Story */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
+      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
-            <p className="text-primary text-sm tracking-wider mb-2">{"// The Origin Story"}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Before University, Before Everything</h2>
+            <p className="section-label mb-3">The Origin Story</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Before University, Before Everything</h2>
           </div>
 
-          <div className="bg-card border border-border rounded-xl p-5 sm:p-8 relative overflow-hidden">
+          <div className="bg-card border border-border rounded-2xl p-5 sm:p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full" />
             <div className="relative space-y-4 text-muted-foreground leading-relaxed">
               <p className="text-base sm:text-lg">
@@ -222,14 +244,14 @@ export default function NotepadCaseStudy() {
             </div>
           </div>
         </div>
-      </section>
+      </section></Reveal>
 
       {/* Features */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6">
+      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
-            <p className="text-primary text-sm tracking-wider mb-2">{"// Features"}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Everything a NotePad Needs</h2>
+            <p className="section-label mb-3">Features</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Everything a NotePad Needs</h2>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
@@ -238,10 +260,10 @@ export default function NotepadCaseStudy() {
               return (
                 <div
                   key={index}
-                  className="flex items-start gap-3 p-3 sm:p-4 bg-card border border-border rounded-xl glow-cyan-hover transition-all duration-300"
+                  className="flex items-start gap-3 p-3 sm:p-4 bg-card border border-border rounded-2xl glow-cyan-hover transition-all duration-300"
                 >
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                    <Icon className="text-[16px] sm:text-[20px] text-primary" />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">{feature.name}</h3>
@@ -252,24 +274,24 @@ export default function NotepadCaseStudy() {
             })}
           </div>
         </div>
-      </section>
+      </section></Reveal>
 
       {/* Architecture */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
+      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
-            <p className="text-primary text-sm tracking-wider mb-2">{"// Architecture"}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">How the App Is Structured</h2>
+            <p className="section-label mb-3">Architecture</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">How the App Is Structured</h2>
           </div>
 
           <div className="space-y-3 sm:space-y-4">
             {architectureFiles.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border rounded-xl glow-cyan-hover transition-all duration-300"
+                className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border rounded-2xl glow-cyan-hover transition-all duration-300"
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Code2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                  <Code2 className="text-[20px] sm:text-[24px] text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -284,19 +306,19 @@ export default function NotepadCaseStudy() {
             ))}
           </div>
         </div>
-      </section>
+      </section></Reveal>
 
       {/* Code Sample */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6">
+      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
-            <p className="text-primary text-sm tracking-wider mb-2">{"// Code Sample"}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Signal-Slot Pattern in Action</h2>
+            <p className="section-label mb-3">Code Sample</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Signal-Slot Pattern in Action</h2>
           </div>
           
           <div className="relative">
-            <div className="absolute -inset-2 bg-primary/5 rounded-xl sm:rounded-2xl blur-xl" />
-            <div className="relative bg-card border border-border rounded-xl overflow-hidden">
+            <div className="absolute -inset-2 bg-primary/5 rounded-2xl sm:rounded-2xl blur-xl" />
+            <div className="relative bg-card border border-border rounded-2xl overflow-hidden">
               <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-secondary/50 border-b border-border">
                 <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500/80" />
                 <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500/80" />
@@ -338,25 +360,25 @@ export default function NotepadCaseStudy() {
             </div>
           </div>
         </div>
-      </section>
+      </section></Reveal>
 
       {/* What I Learned */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
+      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
-            <p className="text-primary text-sm tracking-wider mb-2">{"// What I Learned"}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Lessons From My First Project</h2>
+            <p className="section-label mb-3">What I Learned</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Lessons From My First Project</h2>
           </div>
           
           <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
             {learnings.map((item, index) => (
               <div
                 key={index}
-                className="bg-card border border-border rounded-xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300"
+                className="bg-card border border-border rounded-2xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300"
               >
                 <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <item.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <item.icon className="text-[20px] sm:text-[24px] text-primary" />
                   </div>
                   <div>
                     <h3 className="text-base sm:text-lg font-bold text-foreground mb-2">{item.title}</h3>
@@ -367,14 +389,14 @@ export default function NotepadCaseStudy() {
             ))}
           </div>
         </div>
-      </section>
+      </section></Reveal>
 
       {/* Keyboard Shortcuts */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6">
+      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
-            <p className="text-primary text-sm tracking-wider mb-2">{"// Keyboard Shortcuts"}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Full Shortcut Support</h2>
+            <p className="section-label mb-3">Keyboard Shortcuts</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Full Shortcut Support</h2>
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
@@ -405,22 +427,22 @@ export default function NotepadCaseStudy() {
             ))}
           </div>
         </div>
-      </section>
+      </section></Reveal>
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
+      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-4">
-            <Heart className="h-8 w-8 text-amber-500 fill-amber-500" />
+            <Heart className="text-[32px] text-amber-500 fill-amber-500" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">This Is Where It Started</h2>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-3 sm:mb-4">This Is Where It Started</h2>
           <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base max-w-xl mx-auto">
             From a simple Python Notepad to building full-stack web applications, IoT systems, and cloud deployments. Every expert was once a beginner — and this was my beginning.
           </p>
           <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
             <a href="https://github.com/longmanngithub/NotePad" target="_blank" rel="noopener noreferrer">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 glow-cyan-hover">
-                <Github className="h-4 w-4 mr-2" />
+                <Github className="text-[16px] mr-2" />
                 View on GitHub
               </Button>
             </a>
@@ -435,24 +457,8 @@ export default function NotepadCaseStudy() {
               </Button>
             </Link>
           </div>
-          
-          {/* Buy Me a Coffee */}
-          <div className="mt-8 pt-8 border-t border-border">
-            <div className="flex flex-col items-center gap-3">
-              <p className="text-sm text-muted-foreground">Enjoyed this project? Consider supporting my work ☕</p>
-              <a
-                href="https://link.payway.com.kh/wt410024D"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative z-10 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all hover:scale-105 shadow-lg shadow-primary/25 cursor-pointer"
-              >
-                <span>☕</span>
-                Buy Me a Coffee
-              </a>
-            </div>
-          </div>
         </div>
-      </section>
+      </section></Reveal>
     </main>
   )
 }

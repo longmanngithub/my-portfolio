@@ -3,94 +3,98 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import ArrowLeft from "@mui/icons-material/ArrowBack"
+import ExternalLink from "@mui/icons-material/OpenInNew"
 import Github from "@mui/icons-material/GitHub"
 import Calendar from "@mui/icons-material/CalendarMonth"
 import Clock from "@mui/icons-material/Schedule"
 import Users from "@mui/icons-material/People"
-import Fingerprint from "@mui/icons-material/Fingerprint"
-import Wifi from "@mui/icons-material/Wifi"
-import WifiOff from "@mui/icons-material/WifiOff"
-import HardDrive from "@mui/icons-material/SdStorage"
-import Server from "@mui/icons-material/Dns"
-import Monitor from "@mui/icons-material/DesktopWindows"
-import Cpu from "@mui/icons-material/Memory"
 import CheckCircle2 from "@mui/icons-material/CheckCircle"
-import Radio from "@mui/icons-material/SettingsInputAntenna"
-import Database from "@mui/icons-material/Storage"
+import FilePresent from "@mui/icons-material/Description"
+import Layers from "@mui/icons-material/Layers"
+import Storage from "@mui/icons-material/Storage"
+import FilterAlt from "@mui/icons-material/FilterAlt"
+import AutoAwesome from "@mui/icons-material/AutoAwesome"
+import Terminal from "@mui/icons-material/Terminal"
 import Shield from "@mui/icons-material/Shield"
+import Search from "@mui/icons-material/Search"
 import Link from "next/link"
 import { Reveal } from "@/components/reveal"
 import { useState, useEffect } from "react"
 
 const techStack = [
-  { name: "ESP32", category: "Microcontroller" },
-  { name: "C++ / Arduino", category: "Firmware" },
-  { name: "Laravel 12", category: "Backend" },
-  { name: "Nuxt.js", category: "Frontend" },
-  { name: "PostgreSQL", category: "Database" },
-  { name: "REST API", category: "Communication" },
+  { name: "Python", category: "Language" },
+  { name: "Streamlit", category: "Interface" },
+  { name: "LangChain", category: "Ingestion" },
+  { name: "FAISS", category: "Vector Search" },
+  { name: "Sentence-Transformers", category: "Embeddings" },
+  { name: "Gemini API", category: "Generation" },
 ]
 
 const features = [
-  "24/7 continuous fingerprint scanning",
-  "Offline SD card queuing with auto-sync",
-  "Wi-Fi Manager with captive portal",
-  "RTC-based accurate timestamps",
-  "LCD display & buzzer feedback",
-  "RESTful API for device management",
-  "Session-aware attendance check-in",
-  "Fingerprint enrollment via web interface",
-  "Admin dashboard for attendance records",
+  "Answers grounded in and cited from the source papers",
+  "Two-stage retrieval: bi-encoder recall + cross-encoder rerank",
+  "Extractive mode with zero LLM calls, or streamed Gemini generation",
+  "Relevance threshold blocks hallucinated out-of-corpus answers",
+  "Expandable source cards with similarity scores per chunk",
+  "Jailbreak-resistant system prompt for grounded generation",
+  "Synthetic per-paper metadata cards for acronym/title queries",
+  "Cached FAISS index keyed to a corpus + model fingerprint",
+  "Dynamic arXiv metadata lookup with local caching",
 ]
 
-import type { SvgIconComponent as LucideIcon } from "@mui/icons-material"
+import type { SvgIconComponent as MuiIcon } from "@mui/icons-material"
 
 type Challenge = {
   title: string
   problem: string
   solution: string
-  icon: LucideIcon
+  icon: MuiIcon
 }
 
 const challenges: Challenge[] = [
   {
-    title: "Hardware–Software Integration",
-    problem: "Coordinating multiple peripherals (AS608 sensor, DS3231 RTC, LCD, SD card, buzzer) on a single ESP32 without blocking the main scan loop",
-    solution: "Used non-blocking timer patterns and modular header files for each peripheral, allowing the main loop to continuously scan while background tasks run on intervals",
-    icon: Cpu,
+    title: "Hallucination on Out-of-Corpus Queries",
+    problem:
+      "Raw cosine similarity can't separate in-corpus from out-of-corpus queries — both land in the same ~0.54–0.65 band, so the model would confidently answer questions the corpus can't support",
+    solution:
+      "Gate on the cross-encoder rerank score instead: a corpus-calibrated MIN_RELEVANCE_SCORE = 0.10 threshold, where genuine out-of-corpus queries score ≈0.00 and real queries score ≥0.6",
+    icon: FilterAlt,
   },
   {
-    title: "Offline Resilience",
-    problem: "Attendance records would be lost when Wi-Fi or the backend server was unreachable",
-    solution: "Implemented JSONL-based queue on the SD card. Records are appended when offline and automatically replayed via /api/attendance/sync when connectivity is restored",
-    icon: WifiOff,
+    title: "Bare-Acronym & Title Queries",
+    problem:
+      "Queries like \"ScaNN\" or \"What is FAISS?\" barely appear in a paper's own body text, so pure chunk embeddings often miss the paper the query is actually about",
+    solution:
+      "A synthetic per-paper metadata card (title, common name, authors, opening text) is embedded alongside real chunks, and the cross-encoder reranks the joint (query, passage) pair rather than comparing independent vectors",
+    icon: Search,
   },
   {
-    title: "Real-time Backend Sync",
-    problem: "Ensuring attendance records arrive in the correct session with accurate timestamps despite network latency",
-    solution: "The ESP32 uses a DS3231 RTC for precise local timestamps, and the Laravel backend resolves the active session server-side based on the scanned_at value",
-    icon: Server,
+    title: "Prompt Injection & Jailbreak Attempts",
+    problem:
+      "A grounded system prompt still needs to resist adversarial prompts that try to make the model ignore its sources or answer from world knowledge",
+    solution:
+      "A strict system prompt enforces citation and grounding; verified against a battery of jailbreak and mixed legitimate/adversarial prompts documented in EVALUATION.md, degrading to a safe refusal rather than an ungrounded answer",
+    icon: Shield,
   },
 ]
 
 const howItWorks = [
-  { step: "1", title: "Fingerprint Scan", description: "Student places finger on the AS608 sensor; image is captured and matched" },
-  { step: "2", title: "ESP32 Processing", description: "Firmware identifies the fingerprint, timestamps with RTC, and builds JSON payload" },
-  { step: "3", title: "Backend Sync", description: "Check-in is POSTed to the Laravel API, or queued to SD if offline" },
-  { step: "4", title: "Dashboard View", description: "Attendance records are aggregated and displayed on the Nuxt.js frontend" },
+  { step: "1", title: "Ask a Question", description: "User submits a query in natural language through the Streamlit interface" },
+  { step: "2", title: "Recall + Rerank", description: "FAISS pulls 40 candidate chunks by cosine similarity, then a cross-encoder re-scores them for precision" },
+  { step: "3", title: "Grounded Generation", description: "Gemini (or extractive fallback) generates an answer strictly from the top-ranked chunks" },
+  { step: "4", title: "Cited Answer", description: "Streamed answer is shown with expandable source cards and per-chunk relevance scores" },
 ]
 
-const hardwareComponents = [
-  { name: "ESP32 Dev Module", role: "Main controller", pin: "—" },
-  { name: "AS608 Fingerprint", role: "Biometric input", pin: "GPIO 16/17 (UART2)" },
-  { name: "DS3231 RTC", role: "Timekeeping", pin: "GPIO 21/22 (I2C)" },
-  { name: "LCD 16×2 I2C", role: "User display", pin: "GPIO 21/22 (I2C)" },
-  { name: "MicroSD Module", role: "Offline storage", pin: "GPIO 5/23/19/18 (SPI)" },
-  { name: "Passive Buzzer", role: "Audio feedback", pin: "GPIO 25" },
+const pipelineStages = [
+  { name: "Ingest & Chunk", role: "LangChain loaders", detail: "~120 words/chunk, 20-word overlap" },
+  { name: "Embed", role: "BAAI/bge-small-en-v1.5", detail: "Local bi-encoder, MPS/CUDA/CPU" },
+  { name: "Vector Store", role: "FAISS IndexFlatIP", detail: "Exact cosine over ~3,300 chunks" },
+  { name: "Retrieve", role: "Bi-encoder recall", detail: "Top 40 candidates per query" },
+  { name: "Rerank", role: "ms-marco-MiniLM-L-6-v2", detail: "Cross-encoder relevance scoring" },
+  { name: "Generate", role: "Extractive or Gemini", detail: "Grounded, cited, streamed" },
 ]
 
-export default function Scan2AttendCaseStudy() {
-  // Animated architecture diagram state
+export default function RagSearchCaseStudy() {
   const [activeNode, setActiveNode] = useState(0)
   const [dataPacket, setDataPacket] = useState(0)
 
@@ -112,11 +116,18 @@ export default function Scan2AttendCaseStudy() {
             <span className="text-sm sm:text-base">Back</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
-            <a href="https://github.com/longmanngithub/Scan2Attend-esp" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/longmanngithub/RAG-Based-AI-Search-System" target="_blank" rel="noopener noreferrer">
               <Button variant="outline" size="sm" className="border-border bg-transparent text-xs sm:text-sm px-2.5 sm:px-3 h-8 sm:h-9">
                 <Github className="text-[14px] sm:text-[16px] mr-1.5 sm:mr-2" />
                 <span className="hidden sm:inline">View Code</span>
                 <span className="sm:hidden">Code</span>
+              </Button>
+            </a>
+            <a href="https://seir-rag.bedrock.monster" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" className="bg-primary text-primary-foreground text-xs sm:text-sm px-2.5 sm:px-3 h-8 sm:h-9">
+                <ExternalLink className="text-[14px] sm:text-[16px] mr-1.5 sm:mr-2" />
+                <span className="hidden sm:inline">Live Demo</span>
+                <span className="sm:hidden">Demo</span>
               </Button>
             </a>
           </div>
@@ -132,29 +143,24 @@ export default function Scan2AttendCaseStudy() {
                 Case Study
               </Badge>
               <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-[-0.03em] text-foreground">
-                Scan2<span className="text-primary">Attend</span>
+                RAG-Based AI <span className="text-primary">Search System</span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground">
-                An IoT-powered classroom attendance system that records student check-ins via fingerprint scanning on an ESP32 device, synced to a Laravel backend with offline SD card queuing.
+                A Retrieval-Augmented Generation search engine over 23 AI/ML research papers — ask a question, get an answer grounded in and cited from the actual papers, with visible sources and similarity scores.
               </p>
-              
+
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Calendar className="text-[16px] text-primary" />
-                  <span>2025 – 2026</span>
+                  <span>2026</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="text-[16px] text-primary" />
-                  <span>CS 397: Internet of Everything</span>
+                  <span>CS 382: Final Project</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="text-[16px] text-primary" />
-                  <span>
-                    With{" "}
-                    <a href="https://github.com/vistis" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                      Visoth Kim
-                    </a>
-                  </span>
+                  <span>Solo Project</span>
                 </div>
               </div>
 
@@ -167,7 +173,7 @@ export default function Scan2AttendCaseStudy() {
               </div>
             </div>
 
-            {/* Animated System Architecture Diagram */}
+            {/* Animated Pipeline Diagram */}
             <div className="relative mt-8 lg:mt-0">
               <div className="absolute -inset-2 sm:-inset-4 bg-primary/10 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl" />
               <div className="relative bg-card border border-border rounded-2xl sm:rounded-2xl overflow-hidden glow-cyan">
@@ -176,22 +182,22 @@ export default function Scan2AttendCaseStudy() {
                   <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500/80" />
                   <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500/80" />
                   <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500/80" />
-                  <span className="ml-2 sm:ml-4 text-[10px] sm:text-xs text-muted-foreground truncate">system_architecture.svg — Live</span>
+                  <span className="ml-2 sm:ml-4 text-[10px] sm:text-xs text-muted-foreground truncate">rag_pipeline.svg — Live</span>
                 </div>
-                
-                {/* Architecture Diagram */}
+
+                {/* Pipeline Diagram */}
                 <div className="p-4 sm:p-8 bg-gradient-to-br from-secondary via-secondary/80 to-secondary/60 min-h-[280px] sm:min-h-[340px] flex items-center justify-center">
                   <div className="w-full max-w-md">
-                    {/* Node Row 1: ESP32 Device */}
+                    {/* Node Row 1: Corpus */}
                     <div className="flex justify-center mb-6 sm:mb-8">
-                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-36 sm:w-44 ${
-                        activeNode === 0 
-                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105' 
+                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-40 sm:w-48 ${
+                        activeNode === 0
+                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105'
                           : 'border-border bg-card/50'
                       }`}>
-                        <Cpu className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 0 ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <span className="text-xs sm:text-sm font-semibold text-foreground">ESP32 Device</span>
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Fingerprint + RTC + LCD</span>
+                        <FilePresent className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 0 ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className="text-xs sm:text-sm font-semibold text-foreground">23 arXiv Papers</span>
+                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Chunk + Embed</span>
                       </div>
                     </div>
 
@@ -202,26 +208,26 @@ export default function Scan2AttendCaseStudy() {
                           dataPacket === 1 ? 'bg-primary shadow-lg shadow-primary/50 top-0' : 'bg-muted top-1/2'
                         }`} />
                       </div>
-                      <div className="absolute right-[15%] sm:right-[18%] top-1/2 -translate-y-1/2">
+                      <div className="absolute right-[10%] sm:right-[14%] top-1/2 -translate-y-1/2">
                         <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] sm:text-[9px] transition-all duration-500 ${
                           dataPacket === 1 ? 'bg-primary/20 text-primary' : 'bg-muted/30 text-muted-foreground'
                         }`}>
-                          <Radio className="text-[8px] sm:text-[10px]" />
-                          <span>Wi-Fi / REST</span>
+                          <Layers className="text-[8px] sm:text-[10px]" />
+                          <span>~3,300 chunks</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Node Row 2: Backend */}
+                    {/* Node Row 2: Vector Store */}
                     <div className="flex justify-center mb-6 sm:mb-8">
-                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-36 sm:w-44 ${
+                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-40 sm:w-48 ${
                         activeNode === 1 || activeNode === 2
-                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105' 
+                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105'
                           : 'border-border bg-card/50'
                       }`}>
-                        <Server className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 1 || activeNode === 2 ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <span className="text-xs sm:text-sm font-semibold text-foreground">Laravel Backend</span>
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">API + PostgreSQL</span>
+                        <Storage className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 1 || activeNode === 2 ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className="text-xs sm:text-sm font-semibold text-foreground">FAISS + Reranker</span>
+                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Recall → Rerank</span>
                       </div>
                     </div>
 
@@ -232,48 +238,34 @@ export default function Scan2AttendCaseStudy() {
                           dataPacket === 3 ? 'bg-primary shadow-lg shadow-primary/50 top-0' : 'bg-muted top-1/2'
                         }`} />
                       </div>
-                      <div className="absolute left-[12%] sm:left-[18%] top-1/2 -translate-y-1/2">
+                      <div className="absolute left-[8%] sm:left-[14%] top-1/2 -translate-y-1/2">
                         <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] sm:text-[9px] transition-all duration-500 ${
                           dataPacket === 3 ? 'bg-primary/20 text-primary' : 'bg-muted/30 text-muted-foreground'
                         }`}>
-                          <Database className="text-[8px] sm:text-[10px]" />
-                          <span>JSON / SSR</span>
+                          <AutoAwesome className="text-[8px] sm:text-[10px]" />
+                          <span>Top-k chunks</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Node Row 3: Frontend */}
+                    {/* Node Row 3: Interface */}
                     <div className="flex justify-center">
-                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-36 sm:w-44 ${
-                        activeNode === 3 
-                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105' 
+                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-40 sm:w-48 ${
+                        activeNode === 3
+                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105'
                           : 'border-border bg-card/50'
                       }`}>
-                        <Monitor className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 3 ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <span className="text-xs sm:text-sm font-semibold text-foreground">Nuxt.js Frontend</span>
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Admin Dashboard</span>
-                      </div>
-                    </div>
-
-                    {/* Offline Fallback Node (side) */}
-                    <div className="absolute top-[38%] left-2 sm:left-4">
-                      <div className={`flex flex-col items-center p-2 sm:p-3 rounded-lg border transition-all duration-500 ${
-                        activeNode === 0 
-                          ? 'border-amber-500/50 bg-amber-500/5' 
-                          : 'border-border/50 bg-card/30'
-                      }`}>
-                        <HardDrive className={`text-[16px] sm:text-[20px] mb-1 transition-colors duration-500 ${activeNode === 0 ? 'text-amber-500' : 'text-muted-foreground/50'}`} />
-                        <span className="text-[8px] sm:text-[9px] text-muted-foreground">SD Card</span>
-                        <span className="text-[7px] sm:text-[8px] text-muted-foreground/70">Offline Queue</span>
+                        <Terminal className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 3 ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className="text-xs sm:text-sm font-semibold text-foreground">Streamlit UI</span>
+                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Cited, streamed answer</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Demo note */}
+
               <p className="text-center text-[11px] sm:text-xs text-muted-foreground mt-3 sm:mt-4 px-2">
-                Animated system architecture — ESP32 → Backend → Frontend data flow
+                Animated pipeline — corpus → retrieval → generation → interface
               </p>
             </div>
           </div>
@@ -285,9 +277,9 @@ export default function Scan2AttendCaseStudy() {
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
             <p className="section-label mb-3">How It Works</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Attendance Pipeline</h2>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Query Pipeline</h2>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {howItWorks.map((item, index) => (
               <div key={index} className="relative">
@@ -307,27 +299,27 @@ export default function Scan2AttendCaseStudy() {
         </div>
       </section></Reveal>
 
-      {/* Hardware Components */}
+      {/* Pipeline Stages */}
       <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
-            <p className="section-label mb-3">Hardware</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Component Wiring</h2>
+            <p className="section-label mb-3">Architecture</p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">From PDF to Answer</h2>
           </div>
-          
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {hardwareComponents.map((component, index) => (
+            {pipelineStages.map((stage, index) => (
               <div
                 key={index}
                 className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border rounded-lg sm:rounded-2xl glow-cyan-hover transition-all duration-300"
               >
                 <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Cpu className="text-[16px] sm:text-[20px] text-primary" />
+                  <Layers className="text-[16px] sm:text-[20px] text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm sm:text-base font-semibold text-foreground truncate">{component.name}</p>
-                  <p className="text-xs text-muted-foreground">{component.role}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground/70 font-mono truncate">{component.pin}</p>
+                  <p className="text-sm sm:text-base font-semibold text-foreground truncate">{stage.name}</p>
+                  <p className="text-xs text-muted-foreground">{stage.role}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground/70 font-mono truncate">{stage.detail}</p>
                 </div>
               </div>
             ))}
@@ -342,7 +334,7 @@ export default function Scan2AttendCaseStudy() {
             <p className="section-label mb-3">Capabilities</p>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Features</h2>
           </div>
-          
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {features.map((feature, index) => (
               <div
@@ -362,9 +354,9 @@ export default function Scan2AttendCaseStudy() {
         <div className="max-w-6xl mx-auto">
           <div className="mb-8 sm:mb-12">
             <p className="section-label mb-3">Code Sample</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Fingerprint Scan Loop</h2>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Recall + Rerank Query</h2>
           </div>
-          
+
           <div className="relative">
             <div className="absolute -inset-2 bg-primary/5 rounded-2xl sm:rounded-2xl blur-xl" />
             <div className="relative bg-card border border-border rounded-lg sm:rounded-2xl overflow-hidden">
@@ -372,47 +364,30 @@ export default function Scan2AttendCaseStudy() {
                 <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500/80" />
                 <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500/80" />
                 <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500/80" />
-                <span className="ml-2 sm:ml-4 text-[10px] sm:text-xs text-muted-foreground">ESP32_Fingerprint_Attendance.ino</span>
+                <span className="ml-2 sm:ml-4 text-[10px] sm:text-xs text-muted-foreground">rag/embed_store.py</span>
               </div>
               <pre className="p-3 sm:p-6 text-[11px] sm:text-sm overflow-x-auto">
-                <code className="text-foreground">{`// 24/7 Continuous Fingerprint Scanning
-if (sensorConnected && !enrollRequested) {
-  uint8_t p = finger.getImage();
+                <code className="text-foreground">{`def query(self, query_text: str, top_k: int = 3):
+    """Two-stage retrieval: bi-encoder recall, then
+    cross-encoder rerank. Returns (chunk, relevance)."""
+    query_vec = self.model.encode(
+        [QUERY_INSTRUCTION + query_text], convert_to_numpy=True
+    ).astype(np.float32)
+    faiss.normalize_L2(query_vec)
 
-  if (p == FINGERPRINT_OK) {
-    p = finger.image2Tz();
-    p = finger.fingerSearch();
+    # Stage 1: recall a wide candidate pool via FAISS
+    pool = min(RERANK_CANDIDATE_POOL, len(self.chunks))
+    _, indices = self.index.search(query_vec, pool)
+    candidates = [self.chunks[i] for i in indices[0] if i != -1]
 
-    if (p == FINGERPRINT_OK) {
-      int fpId = finger.fingerID;
+    # Stage 2: cross-encoder re-scores each (query, passage) pair
+    logits = self.reranker.predict(
+        [[query_text, c.text] for c in candidates]
+    )
+    relevance = 1.0 / (1.0 + np.exp(-logits))
+    order = np.argsort(relevance)[::-1][:top_k]
 
-      // Check cooldown (prevent duplicate scans)
-      if (fpId == lastScannedID &&
-          millis() - lastScanTime < SCAN_COOLDOWN) {
-        return;  // Same finger, too fast
-      }
-
-      String scannedAt = getRTCDateTime();
-
-      // Build JSON payload
-      JsonDocument doc;
-      doc["fingerprint_id"] = fpId;
-      doc["scanned_at"] = scannedAt;
-
-      // POST to Laravel backend
-      if (backendConnected) {
-        String response = httpPostJson(checkInURL, payload);
-        showStudent(displayName, timeStr);
-        buzzerSuccess();
-      } else {
-        // Offline: queue to SD card
-        queueAttendance(fpId, scannedAt);
-        showOfflineSaved(displayName);
-        buzzerOfflineSave();
-      }
-    }
-  }
-}`}</code>
+    return [(candidates[i], float(relevance[i])) for i in order]`}</code>
               </pre>
             </div>
           </div>
@@ -426,7 +401,7 @@ if (sensorConnected && !enrollRequested) {
             <p className="section-label mb-3">Technical Deep Dive</p>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Challenges & Solutions</h2>
           </div>
-          
+
           <div className="space-y-4 sm:space-y-6">
             {challenges.map((challenge, index) => (
               <div
@@ -457,64 +432,18 @@ if (sensorConnected && !enrollRequested) {
         </div>
       </section></Reveal>
 
-      {/* System Architecture Detail */}
-      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8 sm:mb-12">
-            <p className="section-label mb-3">Architecture</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">System Overview</h2>
-          </div>
-          
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4">
-                <Cpu className="text-[20px] sm:text-[24px] text-primary" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1.5 sm:mb-2">ESP32 Firmware</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                Runs a 24/7 scan loop with non-blocking timers. Manages AS608 sensor, DS3231 RTC, LCD display, SD card queue, and buzzer — all through modular header files.
-              </p>
-            </div>
-            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4">
-                <Shield className="text-[20px] sm:text-[24px] text-primary" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1.5 sm:mb-2">Laravel Backend</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                RESTful API handles check-ins, session resolution, enrollment, and attendance sync. Models the university structure with courses, sections, and sessions.
-              </p>
-            </div>
-            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300 sm:col-span-2 md:col-span-1">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4">
-                <Monitor className="text-[20px] sm:text-[24px] text-primary" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1.5 sm:mb-2">Nuxt.js Dashboard</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                Admin-facing frontend for viewing attendance records, managing students, enrolling fingerprints, and monitoring device health in real time.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section></Reveal>
-
       {/* CTA Section */}
       <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-3 sm:mb-4">Explore the Source Code</h2>
           <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base">
-            The project is split across two repositories — ESP32 firmware and the web platform.
+            Run it locally with Streamlit, or read the full retrieval/generation evaluation write-up in the repo.
           </p>
           <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
-            <a href="https://github.com/longmanngithub/Scan2Attend-esp" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/longmanngithub/RAG-Based-AI-Search-System" target="_blank" rel="noopener noreferrer">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 glow-cyan-hover">
                 <Github className="text-[16px] mr-2" />
-                ESP32 Firmware
-              </Button>
-            </a>
-            <a href="https://github.com/vistis/ScanToAttend-web" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" className="border-border bg-transparent">
-                <Github className="text-[16px] mr-2" />
-                Web Platform
+                View on GitHub
               </Button>
             </a>
             <Link href="/#contact">

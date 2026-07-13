@@ -9,70 +9,6 @@ interface GitHubStats {
   contributions: number
 }
 
-const achievements = [
-  {
-    id: "pull-shark",
-    title: "Pull Shark",
-    description: "Opened pull requests that have been merged",
-    tier: "gold",
-    icon: "🦈",
-    count: 2,
-  },
-//   {
-//     id: "arctic-code-vault",
-//     title: "Arctic Code Vault",
-//     description: "Contributed code to the 2020 GitHub Archive Program",
-//     tier: "default",
-//     icon: "❄️",
-//     count: null,
-//   },
-//   {
-//     id: "quickdraw",
-//     title: "Quickdraw",
-//     description: "Gitty up! You closed an issue or pull request within 5 minutes of opening",
-//     tier: "default",
-//     icon: "⚡",
-//     count: null,
-//   },
-  {
-    id: "yolo",
-    title: "YOLO",
-    description: "Merged a pull request without code review",
-    tier: "default",
-    icon: "🚀",
-    count: null,
-  },
-//   {
-//     id: "starstruck",
-//     title: "Starstruck",
-//     description: "Created a repository that has many stars",
-//     tier: "bronze",
-//     icon: "⭐",
-//     count: 16,
-//   },
-//   {
-//     id: "pair-extraordinaire",
-//     title: "Pair Extraordinaire",
-//     description: "Coauthored commits on a merged pull request",
-//     tier: "bronze",
-//     icon: "👥",
-//     count: 2,
-//   },
-]
-
-const getTierStyles = (tier: string) => {
-  switch (tier) {
-    case "gold":
-      return "from-yellow-400/20 to-yellow-600/20 border-yellow-500/50 shadow-yellow-500/20"
-    case "silver":
-      return "from-gray-300/20 to-gray-500/20 border-gray-400/50 shadow-gray-400/20"
-    case "bronze":
-      return "from-orange-400/20 to-orange-600/20 border-orange-500/50 shadow-orange-500/20"
-    default:
-      return "from-primary/10 to-primary/5 border-primary/30 shadow-primary/10"
-  }
-}
-
 // Generate contribution data based on real GitHub activity pattern
 // 0 = no contributions, 1-4 = increasing intensity
 const emptyHeatmap = () => Array.from({ length: 52 }, () => Array(7).fill(0))
@@ -94,6 +30,7 @@ export function GitHubStatsSection() {
   })
   const [isVisible, setIsVisible] = useState(false)
   const [heatmap, setHeatmap] = useState<number[][]>(emptyHeatmap())
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setIsVisible(true)
@@ -154,6 +91,7 @@ export function GitHubStatsSection() {
         setHeatmap(emptyHeatmap())
       }
 
+      setLoading(false)
       cleanup = animateTo(target)
     }
 
@@ -165,12 +103,9 @@ export function GitHubStatsSection() {
   }, [])
 
   return (
-    <section id="github" className="py-24 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8 text-center">
-          <p className="text-primary text-sm tracking-wider mb-2">{"// GitHub Profile"}</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Stats & Achievements</h2>
-        </div>
+    <section id="github" className="scroll-mt-28">
+      <div>
+        <h2 className="section-label mb-6">GitHub Stats</h2>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -188,9 +123,13 @@ export function GitHubStatsSection() {
               style={{ transitionDelay: `${index * 100}ms` }}
             >
               <div className="glass-subtle rounded-lg p-2 -m-2">
-                <div className="text-2xl font-bold text-primary mb-1 tabular-nums">
-                  {stat.value.toLocaleString()}
-                </div>
+                {loading ? (
+                  <div className="skeleton mx-auto mb-2 h-7 w-12" />
+                ) : (
+                  <div className="text-2xl font-bold text-primary mb-1 tabular-nums">
+                    {stat.value.toLocaleString()}
+                  </div>
+                )}
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
             </div>
@@ -202,8 +141,15 @@ export function GitHubStatsSection() {
           <div className="absolute -inset-1 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative bg-card border border-border rounded-xl p-4 overflow-hidden">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-foreground">{stats.contributions.toLocaleString()} contributions in the last year</h3>
+              {loading ? (
+                <div className="skeleton h-5 w-56" />
+              ) : (
+                <h3 className="text-base font-semibold text-foreground">{stats.contributions.toLocaleString()} contributions in the last year</h3>
+              )}
             </div>
+            {loading ? (
+              <div className="skeleton h-[91px] w-full" />
+            ) : (
             <div className="overflow-x-auto">
               <div className="flex gap-[3px] min-w-max">
                 {/* Real contribution data - 52 weeks x 7 days */}
@@ -228,6 +174,7 @@ export function GitHubStatsSection() {
                 ))}
               </div>
             </div>
+            )}
             <div className="flex items-center justify-end gap-2 mt-4 text-xs text-muted-foreground">
               <span>Less</span>
               <div className="flex gap-1">
@@ -242,41 +189,6 @@ export function GitHubStatsSection() {
           </div>
         </div>
 
-        {/* Achievements Grid */}
-        <div>
-          <h3 className="text-xl font-semibold text-foreground mb-6">Achievements Unlocked</h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {achievements.map((achievement, index) => (
-              <div
-                key={achievement.id}
-                className={`relative group bg-gradient-to-br ${getTierStyles(achievement.tier)} border rounded-xl p-5 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg`}
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative flex items-start gap-4">
-                  <div className="text-3xl flex-shrink-0 group-hover:scale-110 transition-transform">
-                    {achievement.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-bold text-foreground truncate">{achievement.title}</h4>
-                      {achievement.count && (
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                          x{achievement.count}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {achievement.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   )

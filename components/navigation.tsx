@@ -1,556 +1,141 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
-import { Button } from "@/components/ui/button"
-import { Sun, Moon, Menu, X, Search, Languages } from "lucide-react"
-import Image from "next/image"
-import { useLanguage } from "@/lib/language-context"
-import { useMusic } from "@/lib/music-context"
+import { LiquidGlass } from "react-liquid-glass-svg"
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined"
+import CodeOutlinedIcon from "@mui/icons-material/CodeOutlined"
+import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined"
+import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined"
+import BuildOutlinedIcon from "@mui/icons-material/BuildOutlined"
+import MailOutlineOutlinedIcon from "@mui/icons-material/MailOutlineOutlined"
+import type { SvgIconComponent } from "@mui/icons-material"
+import { cn, smoothScrollTo, getVisibleElementById } from "@/lib/utils"
+import { ThemeToggle } from "@/components/theme-toggle"
 
-// NavLink component with click animation
-function NavLink({ href, label, isActive, onClick }: { href: string; label: string; isActive: boolean; onClick: () => void }) {
-  const [isPressed, setIsPressed] = useState(false)
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([])
-  const linkRef = useRef<HTMLAnchorElement>(null)
+// keep in sync with the `scroll-mt-28` (7rem) offset applied to each section
+const SCROLL_OFFSET = 112
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    
-    // Create ripple effect
-    if (linkRef.current) {
-      const rect = linkRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-      const newRipple = { id: Date.now(), x, y }
-      setRipples(prev => [...prev, newRipple])
-      
-      // Remove ripple after animation
-      setTimeout(() => {
-        setRipples(prev => prev.filter(r => r.id !== newRipple.id))
-      }, 600)
-    }
-    
-    // Smooth scroll to section
-    const sectionId = href.replace('#', '')
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' })
-    }
-    
-    onClick()
-  }
-
-  return (
-    <a
-      ref={linkRef}
-      href={href}
-      onClick={handleClick}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      onMouseLeave={() => setIsPressed(false)}
-      className={`
-        relative px-4 py-2 rounded-full text-sm font-medium overflow-hidden
-        transition-all duration-300 ease-out
-        ${isActive 
-          ? "text-white dark:text-white bg-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.3)]" 
-          : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/80 dark:hover:bg-white/10"
-        }
-        ${isPressed ? "scale-95" : "scale-100"}
-        active:scale-95
-      `}
-      style={{
-        transform: isPressed ? 'scale(0.95)' : 'scale(1)',
-      }}
-    >
-      {/* Ripple effects */}
-      {ripples.map(ripple => (
-        <span
-          key={ripple.id}
-          className="absolute rounded-full bg-cyan-400/30 animate-ripple pointer-events-none"
-          style={{
-            left: ripple.x,
-            top: ripple.y,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      ))}
-      
-      {/* Active indicator dot */}
-      {isActive && (
-        <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-cyan-400 rounded-full animate-pulse" />
-      )}
-      
-      <span className="relative z-10">{label}</span>
-    </a>
-  )
-}
-
-// Mobile NavLink component
-function MobileNavLink({ href, label, isActive, onClick, delay }: { href: string; label: string; isActive: boolean; onClick: () => void; delay: number }) {
-  const [isPressed, setIsPressed] = useState(false)
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    
-    // Smooth scroll to section
-    const sectionId = href.replace('#', '')
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' })
-    }
-    
-    onClick()
-  }
-
-  return (
-    <a
-      href={href}
-      onClick={handleClick}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      onMouseLeave={() => setIsPressed(false)}
-      className={`
-        block px-4 py-3 rounded-xl text-base font-medium
-        transition-all duration-200 ease-out
-        ${isActive 
-          ? "text-cyan-600 dark:text-cyan-400 bg-cyan-500/10" 
-          : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/80 dark:hover:bg-white/10"
-        }
-        ${isPressed ? "scale-[0.98] bg-gray-300/50 dark:bg-white/15" : "scale-100"}
-        active:scale-[0.98]
-      `}
-    >
-      <span className="flex items-center gap-3">
-        {isActive && <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />}
-        {label}
-      </span>
-    </a>
-  )
-}
+const items: { id: string; label: string; icon: SvgIconComponent }[] = [
+  { id: "home", label: "Home", icon: HomeOutlinedIcon },
+  { id: "tech", label: "Skills", icon: CodeOutlinedIcon },
+  { id: "projects", label: "Projects", icon: FolderOutlinedIcon },
+  { id: "experience", label: "Experience", icon: WorkOutlineOutlinedIcon },
+  { id: "services", label: "Services", icon: BuildOutlinedIcon },
+  { id: "contact", label: "Contact", icon: MailOutlineOutlinedIcon },
+]
 
 export function Navigation() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [active, setActive] = useState("home")
+  const [hovered, setHovered] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
-  const [isFlashing, setIsFlashing] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeSection, setActiveSection] = useState("")
-  const searchInputRef = useRef<HTMLInputElement>(null)
-  const { theme, setTheme, resolvedTheme } = useTheme()
-  const { language, setLanguage, t } = useLanguage()
-  const { isPlaying } = useMusic()
+  const { resolvedTheme } = useTheme()
 
-  const navLinks = [
-    { href: "#about", label: t("nav.about"), keywords: ["about", "me", "bio", "introduction", "who", "អំពី"] },
-    { href: "#tech", label: t("nav.tech"), keywords: ["tech", "stack", "skills", "technologies", "programming", "បច្ចេកវិទ្យា"] },
-    { href: "#projects", label: t("nav.projects"), keywords: ["projects", "work", "portfolio", "apps", "គម្រោង"] },
-    { href: "#contact", label: t("nav.contact"), keywords: ["contact", "email", "message", "ទំនាក់ទំនង"] },
-  ]
-
-  const allSections = [
-    { href: "#", label: language === "kh" ? "ទំព័រដើម" : "Home", keywords: ["home", "top", "ដើម"] },
-    ...navLinks,
-    { href: "#github", label: "GitHub Stats", keywords: ["github", "stats", "contributions"] },
-    { href: "#achievements", label: language === "kh" ? "សមិទ្ធិផល" : "Achievements", keywords: ["achievements", "awards"] },
-    { href: "#resume", label: "Resume", keywords: ["resume", "cv", "download"] },
-  ]
-
-  const filteredSections = searchQuery.trim() 
-    ? allSections.filter(section => 
-        section.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        section.keywords.some(k => k.includes(searchQuery.toLowerCase()))
-      )
-    : []
-
-  const toggleLanguage = () => {
-    setLanguage(language === "en" ? "kh" : "en")
-  }
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
-    setMounted(true)
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-      
-      // Track active section based on scroll position
-      const sections = navLinks.map(link => link.href.replace('#', ''))
-      for (const section of sections.reverse()) {
-        const element = document.getElementById(section)
-        if (element) {
-          const rect = element.getBoundingClientRect()
-          if (rect.top <= 150) {
-            setActiveSection(`#${section}`)
-            break
-          }
+    const ids = items.map((i) => i.id)
+    const onScroll = () => {
+      if (window.scrollY < 160) {
+        setActive("home")
+        return
+      }
+      // Near the bottom of the page the last section's top may never cross
+      // the 200px threshold below (short final section, page can't scroll
+      // any further) — treat "at the bottom" as that last section active.
+      const atBottom =
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2
+      if (atBottom) {
+        setActive(ids[ids.length - 1])
+        return
+      }
+      for (const id of [...ids].reverse()) {
+        const el = getVisibleElementById(id)
+        if (el && el.getBoundingClientRect().top <= 200) {
+          setActive(id)
+          break
         }
       }
-      
-      // If at top, no active section
-      if (window.scrollY < 100) {
-        setActiveSection("")
-      }
     }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onScroll, { passive: true })
+    onScroll()
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onScroll)
+    }
   }, [])
 
-  useEffect(() => {
-    if (isSearchOpen && searchInputRef.current) {
-      searchInputRef.current.focus()
+  const go = (id: string) => {
+    setActive(id)
+    if (id === "home") {
+      smoothScrollTo(0)
+      return
     }
-  }, [isSearchOpen])
-
-  // Close search on escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsSearchOpen(false)
-        setSearchQuery("")
-      }
-      // Open search with Cmd/Ctrl + K
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault()
-        setIsSearchOpen(true)
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [])
-
-  const toggleTheme = useCallback(() => {
-    const html = document.documentElement
-    
-    // Disable all transitions for instant theme change
-    html.classList.add('theme-switching')
-    
-    // Change theme immediately
-    setTheme(resolvedTheme === "dark" ? "light" : "dark")
-    
-    // Remove transition block and show flash after a brief moment
-    setTimeout(() => {
-      html.classList.remove('theme-switching')
-      setIsFlashing(true)
-      setTimeout(() => {
-        setIsFlashing(false)
-      }, 600)
-    }, 50)
-  }, [resolvedTheme, setTheme])
-
-  const handleSearch = (href: string) => {
-    setIsSearchOpen(false)
-    setSearchQuery("")
-    setIsMobileMenuOpen(false)
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
+    const el = getVisibleElementById(id)
+    if (!el) return
+    const targetY = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET
+    smoothScrollTo(targetY)
   }
 
+  const isDark = mounted && resolvedTheme === "dark"
+
   return (
-    <>
-      {/* Lightning Flash Overlay for Theme Transition */}
-      {mounted && isFlashing && (
-        <div
-          className="fixed left-0 right-0 z-[100] pointer-events-none lightning-flash"
-          style={{
-            top: '100px',
-            bottom: '100px',
-            maxWidth: '100vw'
-          }}
-        >
-          {/* Main flash */}
-          <div 
-            className="absolute inset-0 animate-lightning"
-            style={{
-              background: resolvedTheme === "dark" 
-              ? "radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.9) 0%, rgba(200,230,255,0.6) 20%, rgba(100,180,255,0.3) 40%, transparent 70%)"
-              : "radial-gradient(ellipse at 50% 30%, rgba(0,0,0,0.7) 0%, rgba(20,30,50,0.5) 20%, rgba(10,20,40,0.2) 40%, transparent 70%)"
-          }}
-        />
-        {/* Secondary flash burst */}
-        <div 
-          className="absolute inset-0 animate-flash-burst"
-          style={{
-            background: resolvedTheme === "dark"
-              ? "conic-gradient(from 0deg at 50% 40%, transparent 0deg, rgba(255,255,255,0.4) 30deg, transparent 60deg, rgba(200,240,255,0.3) 120deg, transparent 180deg, rgba(255,255,255,0.2) 240deg, transparent 300deg)"
-              : "conic-gradient(from 0deg at 50% 40%, transparent 0deg, rgba(0,0,0,0.3) 30deg, transparent 60deg, rgba(20,30,60,0.2) 120deg, transparent 180deg, rgba(0,0,0,0.15) 240deg, transparent 300deg)"
-          }}
-        />
-        </div>
-      )}
-      
-      <nav className="fixed top-4 left-4 right-4 z-50">
-        <div
-          className="max-w-6xl mx-auto border bg-white/95 dark:bg-zinc-800/95 backdrop-blur-xl border-gray-300/50 dark:border-white/15 shadow-lg shadow-gray-400/30 dark:shadow-black/20 rounded-2xl overflow-hidden"
-        >
-          <div className="px-4 md:px-6 py-3 flex items-center justify-between">
-            {/* Logo with Profile Picture and Sound Wave */}
-            <div className="flex items-center gap-3">
-              <a 
-                href="#" 
-                onClick={(e) => {
-                  e.preventDefault()
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
-                  setActiveSection("")
-                }}
-                className="flex items-center gap-3 group"
-              >
-                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-cyan-400/30 group-hover:border-cyan-400 transition-colors duration-300">
-                  <Image
-                    src="/profile.png"
-                    alt="Henglong Loeung"
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-              </a>
-              
-              {/* Sound Wave Visualizer in Nav */}
-              {isPlaying && (
-                <div className="hidden sm:flex items-end gap-[2px] h-5">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-[3px] bg-green-500 rounded-full sound-wave-mini"
-                      style={{
-                        animationDelay: `${i * 0.12}s`,
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <NavLink
-                  key={link.href}
-                  href={link.href}
-                  label={link.label}
-                  isActive={activeSection === link.href}
-                  onClick={() => setActiveSection(link.href)}
-                />
-              ))}
-            </div>
-
-            {/* Right side actions */}
-            <div className="flex items-center gap-1">
-              {/* Search Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearchOpen(true)}
-                className="relative w-10 h-10 rounded-full hover:bg-gray-200/80 dark:hover:bg-white/10 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                aria-label="Search"
-              >
-                <Search className="w-5 h-5" />
-              </Button>
-
-              {/* Theme Toggle */}
-              {mounted && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleTheme}
-                  className={`relative w-10 h-10 rounded-full hover:bg-gray-200/80 dark:hover:bg-white/10 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white ${
-                    isFlashing ? "scale-125 rotate-12" : "scale-100 rotate-0"
-                  }`}
-                  aria-label="Toggle theme"
-                >
-                  <div className="relative w-5 h-5">
-                    <Sun 
-                      className={`absolute inset-0 w-5 h-5 transition-all duration-500 ease-in-out theme-crossfade text-yellow-400 ${
-                        resolvedTheme === "dark" 
-                          ? "opacity-0 rotate-90 scale-0" 
-                          : "opacity-100 rotate-0 scale-100"
-                      }`}
-                    />
-                    <Moon 
-                      className={`absolute inset-0 w-5 h-5 transition-all duration-500 ease-in-out theme-crossfade text-cyan-400 ${
-                        resolvedTheme === "dark" 
-                          ? "opacity-100 rotate-0 scale-100" 
-                          : "opacity-0 -rotate-90 scale-0"
-                      }`}
-                    />
-                  </div>
-                </Button>
-              )}
-
-              {/* Language Toggle */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleLanguage}
-                className="relative w-10 h-10 rounded-full hover:bg-gray-200/80 dark:hover:bg-white/10 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                aria-label="Toggle language"
-              >
-                <span className="text-xs font-bold">
-                  {language === "en" ? "KH" : "EN"}
-                </span>
-              </Button>
-
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden w-10 h-10 rounded-full hover:bg-gray-200/80 dark:hover:bg-white/10 transition-all duration-300 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label="Toggle menu"
-              >
-                <div className="relative w-5 h-5">
-                  <Menu 
-                    className={`absolute inset-0 w-5 h-5 transition-all duration-300 ease-in-out ${
-                      isMobileMenuOpen ? "opacity-0 rotate-180 scale-0" : "opacity-100 rotate-0 scale-100"
-                    }`}
-                  />
-                  <X 
-                    className={`absolute inset-0 w-5 h-5 transition-all duration-300 ease-in-out ${
-                      isMobileMenuOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 rotate-180 scale-0"
-                    }`}
-                  />
-                </div>
-              </Button>
-            </div>
-          </div>
-
-          {/* Mobile Menu Dropdown - Inside the navbar */}
-          <div
-            className="md:hidden"
-            style={{
-              display: 'grid',
-              gridTemplateRows: isMobileMenuOpen ? '1fr' : '0fr',
-              transition: 'grid-template-rows 450ms cubic-bezier(0.33, 1, 0.68, 1)'
-            }}
-          >
-            <div style={{ overflow: 'hidden' }}>
-              <div 
-                className="border-t border-gray-300/50 dark:border-white/10 px-4 py-4 space-y-1"
-                style={{
-                  opacity: isMobileMenuOpen ? 1 : 0,
-                  transform: isMobileMenuOpen ? 'translateY(0)' : 'translateY(-10px)',
-                  transition: 'opacity 400ms ease-out, transform 400ms ease-out',
-                  transitionDelay: isMobileMenuOpen ? '50ms' : '0ms'
-                }}
-              >
-                {navLinks.map((link, index) => (
-                  <MobileNavLink
-                    key={link.href}
-                    href={link.href}
-                    label={link.label}
-                    isActive={activeSection === link.href}
-                    onClick={() => {
-                      setActiveSection(link.href)
-                      setIsMobileMenuOpen(false)
-                    }}
-                    delay={index * 30}
-                  />
-                ))}
-                
-                {/* CTA Button */}
-                <Button 
-                  className="w-full mt-3 py-5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-semibold transition-colors duration-200"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false)
-                    const element = document.getElementById('contact')
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth' })
-                    }
-                  }}
-                >
-                  {t("nav.getInTouch")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Search Modal */}
-      <div
-        className={`fixed inset-0 z-[60] transition-all duration-300 ${
-          isSearchOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+    <div className="fixed left-1/2 top-5 z-50 -translate-x-1/2">
+      <LiquidGlass
+        // The library's built-in glassBorder bakes in a hardcoded white
+        // highlight/border meant for light glass — looks like a stray white
+        // outline on a dark surface. We disable it in dark mode and draw our
+        // own subtle, theme-correct ring instead (see the span below).
+        glassBorder={!isDark}
+        backdropBlur={7}
+        // Pitch-black dark mode has no ambient light for the glass to pick up,
+        // so the tint needs to be lighter/more opaque than in light mode or
+        // the pill disappears into the page background.
+        tintColor={isDark ? "rgba(48,48,48,0.7)" : "rgba(255,255,255,0.3)"}
+        displacementScale={26}
+        turbulenceBaseFrequency={0.008}
+        className={cn(
+          "rounded-full p-1.5",
+          isDark && "shadow-[0_8px_28px_rgba(0,0,0,0.55)] ring-1 ring-white/15 ring-inset"
+        )}
       >
-        {/* Backdrop */}
-        <div 
-          className="absolute inset-0 bg-gray-900/50 dark:bg-zinc-800/70 backdrop-blur-sm"
-          onClick={() => {
-            setIsSearchOpen(false)
-            setSearchQuery("")
-          }}
-        />
-        
-        {/* Search Container */}
-        <div className="relative max-w-xl mx-auto mt-24 px-4">
-          <div
-            className={`bg-white dark:bg-zinc-800 border border-gray-300/50 dark:border-white/15 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 ${
-              isSearchOpen ? "translate-y-0 scale-100" : "-translate-y-4 scale-95"
-            }`}
-          >
-            {/* Search Input */}
-            <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-300/50 dark:border-white/10">
-              <Search className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder={t("nav.searchPlaceholder")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base"
-              />
-              <kbd className="hidden sm:inline-flex px-2 py-1 text-xs text-gray-500 dark:text-gray-500 bg-gray-200/80 dark:bg-white/5 rounded border border-gray-300/50 dark:border-white/10">
-                ESC
-              </kbd>
-            </div>
-
-            {/* Search Results */}
-            {searchQuery.trim() && (
-              <div className="max-h-64 overflow-y-auto">
-                {filteredSections.length > 0 ? (
-                  <div className="py-2">
-                    {filteredSections.map((section) => (
-                      <button
-                        key={section.href}
-                        onClick={() => handleSearch(section.href)}
-                        className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/80 dark:hover:bg-white/10 transition-colors duration-200 flex items-center gap-3"
-                      >
-                        <span className="text-cyan-600 dark:text-cyan-400">#</span>
-                        <span>{section.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-500">
-                    {t("nav.noResults")} "{searchQuery}"
-                  </div>
+        <div className="flex items-center gap-0.5">
+          {items.map(({ id, label, icon: Icon }) => {
+            const isHover = hovered === id
+            const isActive = active === id
+            return (
+              <button
+                key={id}
+                onClick={() => go(id)}
+                onMouseEnter={() => setHovered(id)}
+                onMouseLeave={() => setHovered(null)}
+                aria-label={label}
+                className={cn(
+                  "flex h-9 items-center rounded-full transition-all duration-[500ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  isHover
+                    ? "gap-1.5 bg-primary px-3 text-primary-foreground shadow-sm"
+                    : isActive
+                      ? "px-2 text-primary"
+                      : "px-2 text-foreground/55 hover:text-foreground"
                 )}
-              </div>
-            )}
-
-            {/* Quick Links when empty */}
-            {!searchQuery.trim() && (
-              <div className="py-2">
-                <p className="px-4 py-2 text-xs text-gray-500 dark:text-gray-500 uppercase tracking-wider">Quick Navigation</p>
-                {allSections.slice(0, 5).map((section) => (
-                  <button
-                    key={section.href}
-                    onClick={() => handleSearch(section.href)}
-                    className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200/80 dark:hover:bg-white/10 transition-colors duration-200 flex items-center gap-3"
-                  >
-                    <span className="text-cyan-600 dark:text-cyan-400">#</span>
-                    <span>{section.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Keyboard hint */}
-          <p className="text-center text-gray-500 dark:text-gray-500 text-sm mt-4">
-            Press <kbd className="px-1.5 py-0.5 text-xs bg-gray-200/80 dark:bg-white/5 rounded border border-gray-300/50 dark:border-white/10">⌘K</kbd> to open search anytime
-          </p>
+              >
+                <Icon style={{ fontSize: 18 }} />
+                <span
+                  className={cn(
+                    "overflow-hidden whitespace-nowrap text-sm font-medium transition-all duration-[500ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+                    isHover ? "max-w-[7rem] opacity-100" : "max-w-0 opacity-0"
+                  )}
+                >
+                  {label}
+                </span>
+              </button>
+            )
+          })}
+          <span className="mx-1 h-5 w-px shrink-0 bg-foreground/10" />
+          <ThemeToggle />
         </div>
-      </div>
-    </>
+      </LiquidGlass>
+    </div>
   )
 }

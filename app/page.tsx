@@ -1,65 +1,55 @@
-"use client"
-
-import { HeroSection } from "@/components/hero-section"
-import { AboutSection } from "@/components/about-section"
-import { TechStackSection } from "@/components/tech-stack-section"
-import { ToolsStackSection } from "@/components/tools-stack-section"
-import { ProjectsSection } from "@/components/projects-section"
-import { MindsetSection } from "@/components/mindset-section"
-import { AchievementsSection } from "@/components/achievements-section"
-import { ContactSection } from "@/components/contact-section"
 import { Navigation } from "@/components/navigation"
-import { AnimatedTerminal } from "@/components/animated-terminal"
+import { ProfileCard } from "@/components/profile-card"
+import { HeroSection } from "@/components/hero-section"
+import { TechStackSection } from "@/components/tech-stack-section"
+import { ProjectsSection } from "@/components/projects-section"
+import { ExperienceSection } from "@/components/experience-section"
+import { ServicesSection } from "@/components/services-section"
 import { GitHubStatsSection } from "@/components/github-stats-section"
-import { FloorTilesBackground } from "@/components/floor-tiles-background"
-import { ResumeCard } from "@/components/resume-download"
-import { LanguageWrapper } from "@/components/language-wrapper"
-import { MusicPlayer } from "@/components/music-player"
-import { useLanguage } from "@/lib/language-context"
+import { ContactSection } from "@/components/contact-section"
+import { Reveal } from "@/components/reveal"
 
 export default function Home() {
-  const { t } = useLanguage()
-
   return (
-    <LanguageWrapper>
-      <main className="min-h-screen bg-background relative">
-        <FloorTilesBackground />
-        <MusicPlayer />
-        <div className="relative z-10">
-          <Navigation />
-          <HeroSection />
-          <section id="about">
-            <AboutSection />
-          </section>
-          <AnimatedTerminal />
-          <section id="tech">
-            <TechStackSection />
-            <ToolsStackSection />
-          </section>
-          <section id="projects">
-            <ProjectsSection />
-          </section>
-          <section id="github">
-            <GitHubStatsSection />
-          </section>
-          <section id="achievements">
-            <MindsetSection />
-            <AchievementsSection />
-          </section>
-          <section id="resume" className="py-16 px-6">
-            <div className="max-w-2xl mx-auto">
-              <div className="mb-8 text-center">
-                <p className="text-primary text-sm tracking-wider mb-2">{t("resume.label") || "// Resume"}</p>
-                <h2 className="text-3xl font-bold text-foreground">{t("resume.title") || "Download My CV"}</h2>
-              </div>
-              <ResumeCard />
+    <main className="relative min-h-screen">
+      <Navigation />
+
+      <div className="mx-auto max-w-6xl px-4 pt-24 pb-20 lg:px-8 lg:pt-28">
+        <div className="grid gap-10 lg:grid-cols-[330px_minmax(0,1fr)] lg:gap-14">
+          {/* Sticky profile card */}
+          <aside
+            className="animate-fade-in-up opacity-0 lg:sticky lg:top-28 lg:self-start"
+            style={{ animationDelay: "80ms" }}
+          >
+            <ProfileCard />
+          </aside>
+
+          {/* Scrolling content */}
+          <div className="min-w-0 space-y-24">
+            <div className="animate-fade-in-up opacity-0" style={{ animationDelay: "180ms" }}>
+              <HeroSection />
             </div>
-          </section>
-          <section id="contact">
-            <ContactSection />
-          </section>
+            <Reveal>
+              <TechStackSection />
+            </Reveal>
+            <Reveal>
+              <ProjectsSection />
+            </Reveal>
+            <Reveal>
+              <ExperienceSection />
+            </Reveal>
+            <Reveal>
+              <ServicesSection />
+            </Reveal>
+            <Reveal>
+              <GitHubStatsSection />
+            </Reveal>
+            <Reveal>
+              <ContactSection />
+            </Reveal>
+          </div>
         </div>
-      </main>
-    </LanguageWrapper>
+      </div>
+    </main>
   )
 }

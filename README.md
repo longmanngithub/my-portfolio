@@ -1,78 +1,75 @@
 # Henglong Loeung | Portfolio
 
-A modern, interactive portfolio application built with **Next.js 16** and **React 19**. This project showcases my work as a Computer Science student and Web & Mobile Developer, featuring a highly polished UI, internationalization support, and advanced interactive elements.
+A personal portfolio site built with Next.js 16 and React 19. It showcases my work as a Computer Science student, project manager, and software engineer, with an interactive 3D tech stack visualization, animated case study pages, and a responsive dark and light theme.
 
-## 🚀 Tech Stack
+## Tech Stack
 
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-- **Library:** [React 19](https://react.dev/)
-- **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
-- **UI Components:** [Radix UI](https://www.radix-ui.com/) (via [shadcn/ui](https://ui.shadcn.com/))
-- **Icons:** [Lucide React](https://lucide.dev/)
-- **Fonts:** [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (Code) & [Kantumruy Pro](https://fonts.google.com/specimen/Kantumruy+Pro) (Khmer support)
-- **Computer Vision:** [Google MediaPipe](https://developers.google.com/mediapipe) (Hand Detection)
+- Framework: [Next.js 16](https://nextjs.org/) (App Router)
+- Library: [React 19](https://react.dev/)
+- Styling: [Tailwind CSS 4](https://tailwindcss.com/)
+- UI Components: [Radix UI](https://www.radix-ui.com/) (via [shadcn/ui](https://ui.shadcn.com/))
+- Icons: [MUI Icons](https://mui.com/material-ui/material-icons/) and [Simple Icons](https://simpleicons.org/)
+- Fonts: JetBrains Mono, Poppins, and Zalando Sans Expanded
+- Analytics: [Vercel Analytics](https://vercel.com/analytics)
 
-## ✨ Key Features
+## Features
 
-- **🌐 Internationalization (i18n):** Native support for **English** and **Khmer** languages, managed via a custom React Context provider.
-- **🎨 Dark/Light Mode:** Seamless theme switching powered by `next-themes`.
-- **🎵 Persistent Audio:** Integrated background music player with global state management.
-- **💻 Interactive Terminal:** An animated, developer-centric terminal component in the hero section.
-- **🖐️ Performative Detector:** A showcase project integrating **MediaPipe** for real-time hand gesture detection directly in the browser.
-- **📊 Analytics:** Integrated with Vercel Analytics for privacy-friendly visitor tracking.
+- Interactive 3D tech stack cloud with a synced, auto-scrolling carousel
+- Detailed case study pages for each project, including animated architecture diagrams and browser-frame screenshots
+- Dark and light mode powered by `next-themes`
+- Scroll-triggered reveal animations throughout the page
+- Responsive layout for desktop and mobile
+- GitHub stats section pulling live repository data
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- Node.js (Latest LTS recommended)
-- pnpm (Preferred package manager)
+- Node.js (latest LTS recommended)
+- pnpm (preferred package manager)
 
 ### Installation
 
-1. **Clone the repository:**
+1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd sovandara-portfolio-design
+   cd my-portfolio
    ```
 
-2. **Install dependencies:**
+2. Install dependencies:
    ```bash
    pnpm install
    ```
 
-3. **Run the development server:**
+3. Run the development server:
    ```bash
    pnpm dev
    ```
 
-4. **Open your browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000) to see the application running.
+4. Open your browser at [http://localhost:3000](http://localhost:3000) to see the application running.
 
-## 📂 Project Structure
+## Project Structure
 
-```bash
-├── app/                  # Next.js App Router pages and layouts
-│   ├── projects/         # Case study pages (e.g., fitness-app, performative_detector)
-│   ├── layout.tsx        # Root layout with global providers
-│   └── page.tsx          # Main landing page
-├── components/           # React components
-│   ├── ui/               # Reusable atomic UI components (shadcn/ui)
-│   └── *-section.tsx     # Feature-specific layout sections
-├── hooks/                # Custom React hooks (use-toast, use-mobile, etc.)
-├── lib/                  # Utility functions and Context providers
-│   ├── language-context.tsx # i18n logic
-│   └── music-context.tsx    # Audio player logic
-└── public/               # Static assets (images, fonts, music)
+```
+app/
+  layout.tsx          Root layout with global providers and fonts
+  page.tsx             Main landing page
+  projects/            Case study pages, one folder per project
+components/
+  ui/                  Reusable UI primitives (shadcn/ui)
+  *-section.tsx        Feature-specific homepage sections
+hooks/                 Custom React hooks
+lib/                   Utility functions and shared data
+public/                Static assets, including project screenshots and logos
 ```
 
-## 📜 Scripts
+## Scripts
 
 - `pnpm dev`: Starts the development server.
 - `pnpm build`: Builds the application for production.
 - `pnpm start`: Runs the built production application.
 - `pnpm lint`: Runs ESLint to check for code quality issues.
 
-## 📄 The License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).

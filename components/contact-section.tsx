@@ -1,90 +1,81 @@
 "use client"
 
-import { useLanguage } from "@/lib/language-context"
+import { useState, type FormEvent } from "react"
+import { Button } from "@/components/ui/button"
 
 export function ContactSection() {
-  const { t } = useLanguage()
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [message, setMessage] = useState("")
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    const subject = encodeURIComponent(`Portfolio message from ${name || "someone"}`)
+    const body = encodeURIComponent(
+      `${message}\n\n— ${name}${email ? ` (${email})` : ""}`
+    )
+    window.location.href = `mailto:henglong0000@gmail.com?subject=${subject}&body=${body}`
+  }
+
+  const fieldClass =
+    "w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-primary/50"
 
   return (
-    <section id="contact" className="py-24 px-4 bg-secondary/20">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8 text-center">
-          <p className="text-primary text-sm tracking-wider mb-2">{t("contact.label")}</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t("contact.title")}</h2>
+    <section id="contact" className="scroll-mt-28">
+      <h2 className="section-label mb-6">Get In Touch</h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
+            Name
+          </label>
+          <input
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="John Doe"
+            className={fieldClass}
+          />
         </div>
 
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-card border border-border rounded-xl p-8 glow-cyan">
-            <div className="glass-subtle rounded-lg p-4 -m-4 mb-4">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">{t("contact.portfolio")}</span>
-                  <a href="#" className="text-foreground hover:text-primary transition-colors">
-                    henglongloeung
-                  </a>
-                </div>
-
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">{t("contact.email")}</span>
-                  <a
-                    href="mailto:henglong0000@gmail.com"
-                    className="text-foreground hover:text-primary transition-colors"
-                  >
-                    henglong0000@gmail.com
-                  </a>
-                </div>
-
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">{t("contact.github")}</span>
-                  <a href="https://github.com/longmanngithub" className="text-foreground hover:text-primary transition-colors" target="_blank" rel="noopener noreferrer">
-                    @longmanngithub
-                  </a>
-                </div>
-
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-muted-foreground">{t("contact.location")}</span>
-                  <span className="text-foreground">{t("contact.locationValue")}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-4 border-t border-border text-center">
-              <p className="text-muted-foreground italic text-sm">
-                {t("contact.quote")}
-              </p>
-            </div>
-          </div>
-
-          {/* Buy Me a Coffee */}
-          <div className="mt-8 bg-card border border-border rounded-xl p-6 glow-cyan text-center">
-            <div className="flex flex-col items-center gap-4">
-              <div className="text-4xl">☕</div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  {t("contact.buyMeCoffee")}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t("contact.buyMeCoffeeDesc")}
-                </p>
-              </div>
-              <a
-                href="https://link.payway.com.kh/wt410024D"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative z-10 inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all hover:scale-105 shadow-lg shadow-primary/25 cursor-pointer"
-              >
-                <span>☕</span>
-                {t("contact.buyMeCoffeeButton")}
-              </a>
-            </div>
-          </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
+            Email
+          </label>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="johndoe@gmail.com"
+            className={fieldClass}
+          />
         </div>
 
-        {/* Footer */}
-        <div className="mt-16 pt-8 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">{t("contact.copyright")}</p>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
+            Message
+          </label>
+          <textarea
+            required
+            rows={5}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="I'm interested in working with you!"
+            className={`${fieldClass} resize-y`}
+          />
         </div>
-      </div>
+
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            className="h-11 rounded-full bg-primary px-8 font-semibold uppercase tracking-wider text-primary-foreground hover:bg-primary/90"
+          >
+            Send
+          </Button>
+        </div>
+      </form>
     </section>
   )
 }
