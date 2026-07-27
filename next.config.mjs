@@ -65,10 +65,10 @@ const nextConfig = {
               "font-src 'self' data: https://fonts.gstatic.com",
               // Connections: self + Vercel Analytics + webpack HMR + CDN libs
               "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://unpkg.com https://cdn.jsdelivr.net https://threejs.org wss://localhost:* ws://localhost:*",
-              // Media: self for music player
-              "media-src 'self' blob:",
-              // Frames: allow fitness app demo + self for AI Hand demo
-              "frame-src 'self' https://track-your-fitness-beta.vercel.app",
+              // Media: self for music player + R2 bucket for demo videos
+              "media-src 'self' blob: https://assets.bedrock.monster",
+              // Frames: fitness app demo + self for AI Hand demo + R2 bucket for embedded PDFs (slides)
+              "frame-src 'self' https://track-your-fitness-beta.vercel.app https://assets.bedrock.monster",
               // Frame ancestors: allow self (for iframe embedding)
               "frame-ancestors 'self'",
               // Form actions: self only

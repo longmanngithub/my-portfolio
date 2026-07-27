@@ -15,6 +15,7 @@ import type { SvgIconComponent } from "@mui/icons-material"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { assetUrl } from "@/lib/assets"
 
 type Project = {
   title: string
@@ -22,7 +23,7 @@ type Project = {
   tech: string[]
   year: string
   icon: SvgIconComponent
-  /** Optional app logo (path under /public). Overrides `icon` when present. */
+  /** Optional app logo (served via R2 through assetUrl(); falls back to /public). Overrides `icon` when present. */
   logo?: string
   github?: string
   caseStudy: string
@@ -123,7 +124,7 @@ function ProjectLogo({ project }: { project: Project }) {
     >
       {showLogo ? (
         <Image
-          src={project.logo!}
+          src={assetUrl(project.logo!)}
           alt={`${project.title} logo`}
           width={56}
           height={56}

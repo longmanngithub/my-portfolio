@@ -6,6 +6,7 @@ import GitHubIcon from "@mui/icons-material/GitHub"
 import TelegramIcon from "@mui/icons-material/Telegram"
 import MailOutlineIcon from "@mui/icons-material/MailOutlineRounded"
 import { cn } from "@/lib/utils"
+import { assetUrl } from "@/lib/assets"
 
 const socials = [
   { label: "LinkedIn", href: "https://linkedin.com/in/henglong-loeung-38040b231", icon: LinkedInIcon },
@@ -73,7 +74,7 @@ export function ProfileCard() {
       <div className="relative z-10">
         <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl ring-1 ring-white/10">
           <Image
-            src="/profile.png"
+            src={assetUrl("/profile.png")}
             alt="Henglong Loeung"
             fill
             className="object-cover"

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded"
 import { Button } from "@/components/ui/button"
+import { assetUrl } from "@/lib/assets"
 
 // Placeholder stats — edit these to your real numbers.
 const stats = [
@@ -101,7 +102,7 @@ export function HeroSection() {
       </div>
 
       <div className="mt-10">
-        <a href="/Henglong-Loeung_CV.pdf" download="Henglong-Loeung_CV.pdf">
+        <a href={assetUrl("/Henglong-Loeung_CV.pdf")} download="Henglong-Loeung_CV.pdf">
           <Button className="group h-11 rounded-full bg-primary px-6 font-medium text-primary-foreground transition-all hover:bg-primary/90">
             Download CV
             <DownloadRoundedIcon

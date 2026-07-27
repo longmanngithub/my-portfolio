@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Reveal } from "@/components/reveal"
 import ArrowLeft from "@mui/icons-material/ArrowBack"
+import ExternalLink from "@mui/icons-material/OpenInNew"
 import Github from "@mui/icons-material/GitHub"
 import Calendar from "@mui/icons-material/CalendarMonth"
 import Clock from "@mui/icons-material/Schedule"
@@ -116,6 +117,13 @@ export default function BedrockCaseStudy() {
                 <Github className="text-[14px] sm:text-[16px] mr-1.5 sm:mr-2" />
                 <span className="hidden sm:inline">View Code</span>
                 <span className="sm:hidden">Code</span>
+              </Button>
+            </a>
+            <a href="https://ai.bedrock.monster" target="_blank" rel="noopener noreferrer">
+              <Button size="sm" className="bg-primary text-primary-foreground text-xs sm:text-sm px-2.5 sm:px-3 h-8 sm:h-9">
+                <ExternalLink className="text-[14px] sm:text-[16px] mr-1.5 sm:mr-2" />
+                <span className="hidden sm:inline">Live Demo</span>
+                <span className="sm:hidden">Demo</span>
               </Button>
             </a>
           </div>
