@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Scan2Attend">
+  <title>Scan2Attend</title>
+  <defs>
+    <linearGradient id="s2a" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f8f8f" />
+      <stop offset="1" stop-color="#19bfb1" />
+    </linearGradient>
+  </defs>
+
+  <!-- scanner frame -->
+  <g fill="none" stroke="url(#s2a)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 43V28a8 8 0 0 1 8-8h15" />
+    <path d="M85 20h15a8 8 0 0 1 8 8v15" />
+    <path d="M108 85v15a8 8 0 0 1-8 8H85" />
+    <path d="M43 108H28a8 8 0 0 1-8-8V85" />
+  </g>
+
+  <!-- fingerprint ridges -->
+  <g fill="none" stroke="url(#s2a)" stroke-width="6" stroke-linecap="round">
+    <path d="M40 74V64a24 24 0 0 1 48 0v10" />
+    <path d="M53 79V65a11 11 0 0 1 22 0v14" />
+    <path d="M64 88V68" />
+  </g>
+
+  <!-- scan beam -->
+  <path d="M34 64h60" fill="none" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" opacity="0.9" />
+</svg>
