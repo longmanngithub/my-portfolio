@@ -54,7 +54,7 @@ export function ServicesSection() {
               type="button"
               aria-expanded={isOpen}
               onClick={() => setOpenIndex(isOpen ? null : i)}
-              className="group relative h-[190px] w-full overflow-hidden rounded-2xl bg-card text-left [perspective:1000px] shadow-[0_0_0_2px_rgba(15,143,143,0.22)] transition-all duration-[600ms] ease-[cubic-bezier(0.175,0.885,0.32,1.275)] hover:scale-[1.04] hover:shadow-[0_14px_30px_rgba(15,143,143,0.2)]"
+              className="amicro-button group relative h-[190px] w-full overflow-hidden rounded-2xl bg-card text-left [perspective:1000px] shadow-[0_0_0_2px_rgba(15,143,143,0.22)] transition-all duration-[600ms] ease-[cubic-bezier(0.175,0.885,0.32,1.275)] hover:shadow-[0_14px_30px_rgba(15,143,143,0.2)]"
             >
               {/* base state — title centered */}
               <div className="flex h-full w-full items-center justify-center px-4">

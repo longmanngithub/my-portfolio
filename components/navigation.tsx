@@ -112,7 +112,7 @@ export function Navigation() {
                 onMouseLeave={() => setHovered(null)}
                 aria-label={label}
                 className={cn(
-                  "flex h-9 items-center rounded-full transition-all duration-[500ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  "amicro-button flex h-9 items-center rounded-full transition-all duration-[500ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
                   isHover
                     ? "gap-1.5 bg-primary px-3 text-primary-foreground shadow-sm"
                     : isActive

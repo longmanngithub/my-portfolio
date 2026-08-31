@@ -107,7 +107,7 @@ export default function Scan2AttendCaseStudy() {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/#projects" replace className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors">
             <ArrowLeft className="text-[16px]" />
             <span className="text-sm sm:text-base">Back</span>
           </Link>

@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded"
-import { Button } from "@/components/ui/button"
+import { AmicroDownloadLink } from "@/components/ui/amicro-link-buttons"
 import { assetUrl } from "@/lib/assets"
 
 // Placeholder stats — edit these to your real numbers.
@@ -102,15 +101,13 @@ export function HeroSection() {
       </div>
 
       <div className="mt-10">
-        <a href={assetUrl("/Henglong-Loeung_CV.pdf")} download="Henglong-Loeung_CV.pdf">
-          <Button className="group h-11 rounded-full bg-primary px-6 font-medium text-primary-foreground transition-all hover:bg-primary/90">
-            Download CV
-            <DownloadRoundedIcon
-              style={{ fontSize: 18 }}
-              className="ml-1.5 transition-transform group-hover:translate-y-0.5"
-            />
-          </Button>
-        </a>
+        <AmicroDownloadLink
+          href={assetUrl("/Henglong-Loeung_CV.pdf")}
+          download="Henglong-Loeung_CV.pdf"
+          className="h-11 px-6 font-medium"
+        >
+          Download CV
+        </AmicroDownloadLink>
       </div>
     </section>
   )

@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { AmicroGitHubLink } from "@/components/ui/amicro-link-buttons"
 import ArrowLeft from "@mui/icons-material/ArrowBack"
 import ExternalLink from "@mui/icons-material/OpenInNew"
 import Github from "@mui/icons-material/GitHub"
@@ -73,7 +74,7 @@ export default function RagSearchCaseStudy() {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/#projects" replace className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors">
             <ArrowLeft className="text-[16px]" />
             <span className="text-sm sm:text-base">Back</span>
           </Link>
@@ -283,12 +284,13 @@ export default function RagSearchCaseStudy() {
               Run it locally with Streamlit, or dig into the code on GitHub.
             </p>
             <div className="flex justify-center gap-3 flex-wrap">
-              <a href="https://github.com/longmanngithub/RAG-Based-AI-Search-System" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Github className="text-[16px] mr-2" />
-                  View on GitHub
-                </Button>
-              </a>
+              <AmicroGitHubLink
+                href="https://github.com/longmanngithub/RAG-Based-AI-Search-System"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View on GitHub
+              </AmicroGitHubLink>
               <Link href="/#contact">
                 <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
                   Get In Touch
