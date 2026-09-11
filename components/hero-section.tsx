@@ -73,14 +73,108 @@ function StatValue({ value }: { value: string }) {
   )
 }
 
+const TITLES = [
+  "Junior Software Engineer",
+  "Full-Stack Developer",
+  "AI & Backend Engineer",
+  "Microservice & Cloud Builder",
+  "Software Engineer & Tech Lead",
+]
+
+function TypewriterTitle() {
+  const [titleIndex, setTitleIndex] = useState(0)
+  const [currentText, setCurrentText] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const media = window.matchMedia("(prefers-reduced-motion: reduce)")
+      setPrefersReducedMotion(media.matches)
+      const listener = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+      media.addEventListener("change", listener)
+      return () => media.removeEventListener("change", listener)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setCurrentText(TITLES[0])
+      return
+    }
+
+    const fullText = TITLES[titleIndex]
+
+    if (isPaused) {
+      const pauseDuration = isDeleting ? 420 : 2200
+      const timeout = setTimeout(() => {
+        setIsPaused(false)
+        if (isDeleting) {
+          setIsDeleting(false)
+          setTitleIndex((prev) => (prev + 1) % TITLES.length)
+        } else {
+          setIsDeleting(true)
+        }
+      }, pauseDuration)
+      return () => clearTimeout(timeout)
+    }
+
+    if (!isDeleting) {
+      if (currentText.length < fullText.length) {
+        // Human-paced typing with subtle variation
+        const delay = 45 + Math.random() * 35
+        const timeout = setTimeout(() => {
+          setCurrentText(fullText.slice(0, currentText.length + 1))
+        }, delay)
+        return () => clearTimeout(timeout)
+      } else {
+        // Finished typing, pause to let the visitor read
+        setIsPaused(true)
+      }
+    } else {
+      if (currentText.length > 0) {
+        // Fast, smooth backspacing
+        const delay = 24 + Math.random() * 15
+        const timeout = setTimeout(() => {
+          setCurrentText(fullText.slice(0, currentText.length - 1))
+        }, delay)
+        return () => clearTimeout(timeout)
+      } else {
+        // Finished deleting, brief pause before next word
+        setIsPaused(true)
+      }
+    }
+  }, [currentText, isDeleting, isPaused, titleIndex, prefersReducedMotion])
+
+  const targetTitle = TITLES[titleIndex]
+
+  return (
+    <h1
+      className="block font-display text-4xl font-bold leading-[1.12] tracking-[-0.03em] text-foreground min-h-[2.4em] sm:min-h-[2.2em] sm:text-5xl md:text-6xl lg:text-7xl"
+      aria-label={targetTitle}
+    >
+      <span className="sr-only">{targetTitle}</span>
+      <span aria-hidden="true" className="inline">
+        {currentText}
+        <span
+          className="ml-1.5 inline-block h-[0.82em] w-[3px] shrink-0 rounded-full bg-primary align-baseline md:ml-2 md:w-[4.5px]"
+          style={{
+            animation: isPaused
+              ? "cursor-blink 1s step-end infinite"
+              : "none",
+            opacity: 1,
+          }}
+        />
+      </span>
+    </h1>
+  )
+}
+
 export function HeroSection() {
   return (
     <section id="home" className="scroll-mt-28">
-      <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-[-0.03em] text-foreground">
-        Junior Software
-        <br />
-        Engineer
-      </h1>
+      <TypewriterTitle />
 
       <p className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground">
         Crafting clean interfaces and solid backends. I lead teams building

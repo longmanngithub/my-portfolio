@@ -45,7 +45,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Henglong Loeung | Portfolio",
-  description: "Year 3 Computer Science Student · Junior Software Engineer",
+  description: "Computer Science Senior · Full-Stack & AI Software Engineer",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

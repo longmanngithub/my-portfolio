@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 // Ensure this runs on the Node.js runtime so process.env is available consistently
 export const runtime = "nodejs"
-export const dynamic = "force-dynamic"
+export const revalidate = 3600 // Cache at edge/CDN for 1 hour to prevent hitting GitHub rate limits
 
 const query = `
   query($login: String!) {
@@ -44,7 +44,7 @@ export async function GET() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ query, variables: { login } }),
-      cache: "no-store",
+      next: { revalidate: 3600 },
     })
 
     if (!res.ok) {
@@ -83,7 +83,12 @@ export async function GET() {
           weeks,
         },
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+        },
+      }
     )
   } catch (error: any) {
     return NextResponse.json(

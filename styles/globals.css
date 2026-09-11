@@ -155,6 +155,7 @@
     color-scheme: light;
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
+    overflow-x: clip;
   }
 
   html.dark {
@@ -167,6 +168,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: var(--font-sans);
+    overflow-x: clip;
   }
 
   /* subtle dotted texture, like the reference */
@@ -237,6 +239,16 @@
   box-shadow: 0 8px 32px rgba(16, 35, 59, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.75),
     inset 0 -1px 0 rgba(16, 35, 59, 0.04);
+}
+
+.dark .liquid-glass {
+  background: rgba(18, 18, 18, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
 }
 
 /* Small uppercase section label (reference-style) */
@@ -383,7 +395,7 @@
 
 .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
 /* profile ring (soft, no neon) */
@@ -436,6 +448,15 @@
 input:focus,
 textarea:focus {
   box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.25);
+}
+
+/* ---------- No scrollbar utility ---------- */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* ---------- Scrollbar ---------- */
@@ -516,7 +537,13 @@ textarea:focus {
 
 .amicro-button:active {
   transform: translateY(0) scale(0.96);
-  transition-duration: 120ms;
+  transition-duration: 80ms;
+}
+
+/* Apple Design tactile press feedback (SKILL.md §1: Respond on pointer-down) */
+button:active:not(:disabled),
+a:active:not([disabled]) {
+  transition-duration: 80ms !important;
 }
 
 .amicro-btn-icon {

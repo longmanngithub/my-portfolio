@@ -22,7 +22,8 @@ function SpaceDoodles() {
     <svg
       aria-hidden="true"
       focusable="false"
-      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+      overflow="hidden"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-hidden"
       viewBox="0 0 100 160"
       preserveAspectRatio="none"
       fill="none"
@@ -41,16 +42,15 @@ function SpaceDoodles() {
         <circle cx="50" cy="4.5" r="0.4" opacity="0.3" />
         <circle cx="6" cy="15" r="0.4" opacity="0.3" />
       </g>
-      {/* kept faint and tucked in the corner so it doesn't compete with the
-          social icon row sitting just above it */}
+      {/* Safely tucked inside the card boundaries so dashed strokes never bleed into adjacent sections */}
       <g
         className="text-primary"
         stroke="currentColor"
-        transform="translate(88 156) rotate(-16)"
+        transform="translate(80 144) rotate(-16)"
         opacity="0.22"
       >
-        <ellipse cx="0" cy="0" rx="11" ry="4.5" strokeWidth="0.6" strokeDasharray="1.4 2.2" />
-        <circle cx="11" cy="0" r="1.8" fill="currentColor" stroke="none" />
+        <ellipse cx="0" cy="0" rx="8" ry="3.4" strokeWidth="0.6" strokeDasharray="1.4 2.2" />
+        <circle cx="8" cy="0" r="1.4" fill="currentColor" stroke="none" />
       </g>
     </svg>
   )
@@ -67,12 +67,14 @@ export function ProfileCard() {
         // soft ring for definition instead of relying on a shadow, since a
         // shadow is invisible against a black page anyway.
         "relative overflow-hidden rounded-[1.75rem] bg-[#0f2338] p-5 text-white shadow-[0_30px_60px_-20px_rgba(16,35,59,0.45)]",
-        "dark:bg-[#0a0f16] dark:shadow-none dark:ring-1 dark:ring-white/10"
+        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-20 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/30 dark:before:via-white/15 before:to-transparent",
+        "dark:bg-[#0a0f16] dark:shadow-none dark:ring-1 dark:ring-white/10",
+        "isolate [transform:translateZ(0)]"
       )}
     >
       <SpaceDoodles />
       <div className="relative z-10">
-        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl ring-1 ring-white/10">
+        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-inner">
           <Image
             src={assetUrl("/profile.png")}
             alt="Henglong Loeung"
@@ -98,7 +100,7 @@ export function ProfileCard() {
               target={href.startsWith("http") ? "_blank" : undefined}
               rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
               aria-label={label}
-              className="text-primary transition-transform duration-200 hover:-translate-y-0.5 hover:text-primary/80"
+              className="text-primary transition-all duration-150 hover:-translate-y-0.5 hover:text-primary/80 active:scale-90"
             >
               <Icon style={{ fontSize: 20 }} />
             </a>

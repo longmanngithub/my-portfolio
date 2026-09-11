@@ -11,7 +11,7 @@ import { Reveal } from "@/components/reveal"
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen">
+    <main className="relative min-h-screen overflow-x-clip">
       <Navigation />
 
       <div className="mx-auto max-w-6xl px-4 pt-24 pb-20 lg:px-8 lg:pt-28">
@@ -32,9 +32,7 @@ export default function Home() {
             <Reveal>
               <TechStackSection />
             </Reveal>
-            <Reveal>
-              <ProjectsSection />
-            </Reveal>
+            <ProjectsSection />
             <Reveal>
               <ExperienceSection />
             </Reveal>
