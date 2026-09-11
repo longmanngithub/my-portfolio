@@ -1,26 +1,26 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import ArrowLeft from "@mui/icons-material/ArrowBack"
-import Github from "@mui/icons-material/GitHub"
-import Calendar from "@mui/icons-material/CalendarMonth"
-import Clock from "@mui/icons-material/Schedule"
-import Users from "@mui/icons-material/People"
-import Fingerprint from "@mui/icons-material/Fingerprint"
-import Wifi from "@mui/icons-material/Wifi"
-import WifiOff from "@mui/icons-material/WifiOff"
-import HardDrive from "@mui/icons-material/SdStorage"
-import Server from "@mui/icons-material/Dns"
-import Monitor from "@mui/icons-material/DesktopWindows"
-import Cpu from "@mui/icons-material/Memory"
-import CheckCircle2 from "@mui/icons-material/CheckCircle"
-import Radio from "@mui/icons-material/SettingsInputAntenna"
-import Database from "@mui/icons-material/Storage"
-import Shield from "@mui/icons-material/Shield"
-import Link from "next/link"
-import { Reveal } from "@/components/reveal"
 import { useState, useEffect } from "react"
+import {
+  FloatingNav,
+  ProjectHero,
+  BentoVitals,
+  InteractivePipeline,
+  FeatureGrid,
+  ChallengesGrid,
+  AppleCodeViewer,
+  ProjectCTA,
+} from "@/components/project-details"
+import CpuIcon from "@mui/icons-material/Memory"
+import RadioIcon from "@mui/icons-material/SettingsInputAntenna"
+import ServerIcon from "@mui/icons-material/Dns"
+import DatabaseIcon from "@mui/icons-material/Storage"
+import MonitorIcon from "@mui/icons-material/DesktopWindows"
+import HardDriveIcon from "@mui/icons-material/SdStorage"
+import WifiIcon from "@mui/icons-material/Wifi"
+import ShieldIcon from "@mui/icons-material/Shield"
+import { Reveal } from "@/components/reveal"
+import { cn } from "@/lib/utils"
 
 const techStack = [
   { name: "ESP32", category: "Microcontroller" },
@@ -28,354 +28,58 @@ const techStack = [
   { name: "Laravel 12", category: "Backend" },
   { name: "Nuxt.js", category: "Frontend" },
   { name: "PostgreSQL", category: "Database" },
-  { name: "REST API", category: "Communication" },
+  { name: "REST API", category: "Protocol" },
 ]
 
 const features = [
-  "24/7 continuous fingerprint scanning",
-  "Offline SD card queuing with auto-sync",
-  "Wi-Fi Manager with captive portal",
-  "RTC-based accurate timestamps",
-  "LCD display & buzzer feedback",
-  "RESTful API for device management",
-  "Session-aware attendance check-in",
-  "Fingerprint enrollment via web interface",
-  "Admin dashboard for attendance records",
+  "24/7 continuous biometric fingerprint scanning",
+  "Offline SD card queuing with automatic sync",
+  "Wi-Fi Manager with local captive portal",
+  "DS3231 RTC hardware-backed millisecond timestamps",
+  "LCD status display & acoustic buzzer feedback",
+  "RESTful device management and health heartbeats",
+  "Session-aware course & student check-in gating",
+  "Fingerprint enrollment directly via web dashboard",
 ]
 
-import type { SvgIconComponent as LucideIcon } from "@mui/icons-material"
-
-type Challenge = {
-  title: string
-  problem: string
-  solution: string
-  icon: LucideIcon
-}
-
-const challenges: Challenge[] = [
-  {
-    title: "Hardware–Software Integration",
-    problem: "Coordinating multiple peripherals (AS608 sensor, DS3231 RTC, LCD, SD card, buzzer) on a single ESP32 without blocking the main scan loop",
-    solution: "Used non-blocking timer patterns and modular header files for each peripheral, allowing the main loop to continuously scan while background tasks run on intervals",
-    icon: Cpu,
-  },
-  {
-    title: "Offline Resilience",
-    problem: "Attendance records would be lost when Wi-Fi or the backend server was unreachable",
-    solution: "Implemented JSONL-based queue on the SD card. Records are appended when offline and automatically replayed via /api/attendance/sync when connectivity is restored",
-    icon: WifiOff,
-  },
-  {
-    title: "Real-time Backend Sync",
-    problem: "Ensuring attendance records arrive in the correct session with accurate timestamps despite network latency",
-    solution: "The ESP32 uses a DS3231 RTC for precise local timestamps, and the Laravel backend resolves the active session server-side based on the scanned_at value",
-    icon: Server,
-  },
-]
-
-const howItWorks = [
-  { step: "1", title: "Fingerprint Scan", description: "Student places finger on the AS608 sensor; image is captured and matched" },
-  { step: "2", title: "ESP32 Processing", description: "Firmware identifies the fingerprint, timestamps with RTC, and builds JSON payload" },
-  { step: "3", title: "Backend Sync", description: "Check-in is POSTed to the Laravel API, or queued to SD if offline" },
-  { step: "4", title: "Dashboard View", description: "Attendance records are aggregated and displayed on the Nuxt.js frontend" },
+const pipelineSteps = [
+  { step: "1", title: "Fingerprint Scanned", description: "Student places finger on AS608 optical sensor; template matched locally in under 400ms." },
+  { step: "2", title: "RTC Timestamped", description: "DS3231 real-time clock records exact verified timestamp independent of internet connection." },
+  { step: "3", title: "Connectivity Gate", description: "If Wi-Fi is active, POSTs JSON payload to Laravel; if offline, appends to SD card FIFO queue." },
+  { step: "4", title: "Dashboard Aggregation", description: "Records sync to PostgreSQL and display immediately on lecturer Nuxt.js attendance tables." },
 ]
 
 const hardwareComponents = [
-  { name: "ESP32 Dev Module", role: "Main controller", pin: "—" },
-  { name: "AS608 Fingerprint", role: "Biometric input", pin: "GPIO 16/17 (UART2)" },
-  { name: "DS3231 RTC", role: "Timekeeping", pin: "GPIO 21/22 (I2C)" },
-  { name: "LCD 16×2 I2C", role: "User display", pin: "GPIO 21/22 (I2C)" },
-  { name: "MicroSD Module", role: "Offline storage", pin: "GPIO 5/23/19/18 (SPI)" },
-  { name: "Passive Buzzer", role: "Audio feedback", pin: "GPIO 25" },
+  { name: "ESP32 Dev Module", role: "Dual-core 240MHz controller running FreeRTOS", pin: "Main Board" },
+  { name: "AS608 Optical Sensor", role: "Biometric enrollment & 1:N fingerprint search", pin: "UART2 (GPIO 16/17)" },
+  { name: "DS3231 RTC Module", role: "Battery-backed I2C real-time hardware clock", pin: "I2C (GPIO 21/22)" },
+  { name: "LCD 16×2 Display", role: "Real-time student greeting and status display", pin: "I2C (GPIO 21/22)" },
+  { name: "MicroSD Module", role: "Offline FIFO queue storage for power outages", pin: "SPI (GPIO 5/18/19/23)" },
+  { name: "Passive Buzzer", role: "Distinct acoustic success, error & queue tones", pin: "PWM (GPIO 25)" },
 ]
 
-export default function Scan2AttendCaseStudy() {
-  // Animated architecture diagram state
-  const [activeNode, setActiveNode] = useState(0)
-  const [dataPacket, setDataPacket] = useState(0)
+const challenges = [
+  {
+    title: "Hardware–Software Integration",
+    problem: "Coordinating 5 peripherals (AS608 sensor, DS3231 RTC, LCD, SD card, buzzer) on an ESP32 without blocking the optical scan loop.",
+    solution: "Implemented non-blocking timer loops and modular drivers, keeping the main loop continuously polling biometric input.",
+    icon: CpuIcon,
+  },
+  {
+    title: "Offline Sync Reliability",
+    problem: "Campus Wi-Fi drops must not lose student attendance check-ins or corrupt records during sudden power cuts.",
+    solution: "Designed a FIFO text queue on the SD card with transactional cursor pointers, flushing buffered records sequentially upon Wi-Fi reconnect.",
+    icon: HardDriveIcon,
+  },
+  {
+    title: "Zero-Code Wi-Fi Provisioning",
+    problem: "Hardcoding campus Wi-Fi credentials into C++ firmware prevents device relocation across different lecture halls.",
+    solution: "Implemented an on-demand captive portal (AP mode) allowing lecturers to configure SSID and password from their phone.",
+    icon: WifiIcon,
+  },
+]
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveNode((prev) => (prev + 1) % 4)
-      setDataPacket((prev) => (prev + 1) % 4)
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <main className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-          <Link href="/#projects" replace className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft className="text-[16px]" />
-            <span className="text-sm sm:text-base">Back</span>
-          </Link>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <a href="https://github.com/longmanngithub/Scan2Attend-esp" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm" className="border-border bg-transparent text-xs sm:text-sm px-2.5 sm:px-3 h-8 sm:h-9">
-                <Github className="text-[14px] sm:text-[16px] mr-1.5 sm:mr-2" />
-                <span className="hidden sm:inline">View Code</span>
-                <span className="sm:hidden">Code</span>
-              </Button>
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-16 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="space-y-4 sm:space-y-6">
-              <Badge variant="outline" className="border-primary text-primary">
-                Case Study
-              </Badge>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-[-0.03em] text-foreground">
-                Scan2<span className="text-primary">Attend</span>
-              </h1>
-              <p className="text-lg sm:text-xl text-muted-foreground">
-                An IoT-powered classroom attendance system that records student check-ins via fingerprint scanning on an ESP32 device, synced to a Laravel backend with offline SD card queuing.
-              </p>
-              
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Calendar className="text-[16px] text-primary" />
-                  <span>2025 – 2026</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="text-[16px] text-primary" />
-                  <span>CS 397: Internet of Everything</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="text-[16px] text-primary" />
-                  <span>
-                    With{" "}
-                    <a href="https://github.com/vistis" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                      Visoth Kim
-                    </a>
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {techStack.map((tech) => (
-                  <Badge key={tech.name} variant="secondary" className="bg-secondary">
-                    {tech.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Animated System Architecture Diagram */}
-            <div className="relative mt-8 lg:mt-0">
-              <div className="absolute -inset-2 sm:-inset-4 bg-primary/10 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl" />
-              <div className="relative bg-card border border-border rounded-2xl sm:rounded-2xl overflow-hidden glow-cyan">
-                {/* Terminal Header */}
-                <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-secondary/50 border-b border-border">
-                  <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500/80" />
-                  <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500/80" />
-                  <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500/80" />
-                  <span className="ml-2 sm:ml-4 text-[10px] sm:text-xs text-muted-foreground truncate">system_architecture.svg — Live</span>
-                </div>
-                
-                {/* Architecture Diagram */}
-                <div className="p-4 sm:p-8 bg-gradient-to-br from-secondary via-secondary/80 to-secondary/60 min-h-[280px] sm:min-h-[340px] flex items-center justify-center">
-                  <div className="w-full max-w-md">
-                    {/* Node Row 1: ESP32 Device */}
-                    <div className="flex justify-center mb-6 sm:mb-8">
-                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-36 sm:w-44 ${
-                        activeNode === 0 
-                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105' 
-                          : 'border-border bg-card/50'
-                      }`}>
-                        <Cpu className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 0 ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <span className="text-xs sm:text-sm font-semibold text-foreground">ESP32 Device</span>
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Fingerprint + RTC + LCD</span>
-                      </div>
-                    </div>
-
-                    {/* Connection Line 1 */}
-                    <div className="flex justify-center mb-6 sm:mb-8 relative">
-                      <div className="w-px h-8 sm:h-10 bg-border relative">
-                        <div className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full transition-all duration-500 ${
-                          dataPacket === 1 ? 'bg-primary shadow-lg shadow-primary/50 top-0' : 'bg-muted top-1/2'
-                        }`} />
-                      </div>
-                      <div className="absolute right-[15%] sm:right-[18%] top-1/2 -translate-y-1/2">
-                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] sm:text-[9px] transition-all duration-500 ${
-                          dataPacket === 1 ? 'bg-primary/20 text-primary' : 'bg-muted/30 text-muted-foreground'
-                        }`}>
-                          <Radio className="text-[8px] sm:text-[10px]" />
-                          <span>Wi-Fi / REST</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Node Row 2: Backend */}
-                    <div className="flex justify-center mb-6 sm:mb-8">
-                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-36 sm:w-44 ${
-                        activeNode === 1 || activeNode === 2
-                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105' 
-                          : 'border-border bg-card/50'
-                      }`}>
-                        <Server className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 1 || activeNode === 2 ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <span className="text-xs sm:text-sm font-semibold text-foreground">Laravel Backend</span>
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">API + PostgreSQL</span>
-                      </div>
-                    </div>
-
-                    {/* Connection Line 2 */}
-                    <div className="flex justify-center mb-6 sm:mb-8 relative">
-                      <div className="w-px h-8 sm:h-10 bg-border relative">
-                        <div className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full transition-all duration-500 ${
-                          dataPacket === 3 ? 'bg-primary shadow-lg shadow-primary/50 top-0' : 'bg-muted top-1/2'
-                        }`} />
-                      </div>
-                      <div className="absolute left-[12%] sm:left-[18%] top-1/2 -translate-y-1/2">
-                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] sm:text-[9px] transition-all duration-500 ${
-                          dataPacket === 3 ? 'bg-primary/20 text-primary' : 'bg-muted/30 text-muted-foreground'
-                        }`}>
-                          <Database className="text-[8px] sm:text-[10px]" />
-                          <span>JSON / SSR</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Node Row 3: Frontend */}
-                    <div className="flex justify-center">
-                      <div className={`flex flex-col items-center p-3 sm:p-4 rounded-2xl border-2 transition-all duration-500 w-36 sm:w-44 ${
-                        activeNode === 3 
-                          ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-105' 
-                          : 'border-border bg-card/50'
-                      }`}>
-                        <Monitor className={`text-[24px] sm:text-[32px] mb-1.5 sm:mb-2 transition-colors duration-500 ${activeNode === 3 ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <span className="text-xs sm:text-sm font-semibold text-foreground">Nuxt.js Frontend</span>
-                        <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Admin Dashboard</span>
-                      </div>
-                    </div>
-
-                    {/* Offline Fallback Node (side) */}
-                    <div className="absolute top-[38%] left-2 sm:left-4">
-                      <div className={`flex flex-col items-center p-2 sm:p-3 rounded-lg border transition-all duration-500 ${
-                        activeNode === 0 
-                          ? 'border-amber-500/50 bg-amber-500/5' 
-                          : 'border-border/50 bg-card/30'
-                      }`}>
-                        <HardDrive className={`text-[16px] sm:text-[20px] mb-1 transition-colors duration-500 ${activeNode === 0 ? 'text-amber-500' : 'text-muted-foreground/50'}`} />
-                        <span className="text-[8px] sm:text-[9px] text-muted-foreground">SD Card</span>
-                        <span className="text-[7px] sm:text-[8px] text-muted-foreground/70">Offline Queue</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Demo note */}
-              <p className="text-center text-[11px] sm:text-xs text-muted-foreground mt-3 sm:mt-4 px-2">
-                Animated system architecture — ESP32 → Backend → Frontend data flow
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8 sm:mb-12">
-            <p className="section-label mb-3">How It Works</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Attendance Pipeline</h2>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            {howItWorks.map((item, index) => (
-              <div key={index} className="relative">
-                {index < howItWorks.length - 1 && (
-                  <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-primary/50 to-transparent -z-10" />
-                )}
-                <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-3 sm:p-4 text-center glow-cyan-hover transition-all duration-300 h-full">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                    <span className="text-lg sm:text-xl font-bold text-primary">{item.step}</span>
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">{item.title}</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section></Reveal>
-
-      {/* Hardware Components */}
-      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8 sm:mb-12">
-            <p className="section-label mb-3">Hardware</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Component Wiring</h2>
-          </div>
-          
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {hardwareComponents.map((component, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border rounded-lg sm:rounded-2xl glow-cyan-hover transition-all duration-300"
-              >
-                <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Cpu className="text-[16px] sm:text-[20px] text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm sm:text-base font-semibold text-foreground truncate">{component.name}</p>
-                  <p className="text-xs text-muted-foreground">{component.role}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground/70 font-mono truncate">{component.pin}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section></Reveal>
-
-      {/* Features Section */}
-      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8 sm:mb-12">
-            <p className="section-label mb-3">Capabilities</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Features</h2>
-          </div>
-          
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-4 bg-card border border-border rounded-lg sm:rounded-2xl glow-cyan-hover transition-all duration-300"
-              >
-                <CheckCircle2 className="text-[16px] sm:text-[20px] text-primary flex-shrink-0" />
-                <span className="text-foreground text-sm sm:text-base">{feature}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section></Reveal>
-
-      {/* Code Sample */}
-      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8 sm:mb-12">
-            <p className="section-label mb-3">Code Sample</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Fingerprint Scan Loop</h2>
-          </div>
-          
-          <div className="relative">
-            <div className="absolute -inset-2 bg-primary/5 rounded-2xl sm:rounded-2xl blur-xl" />
-            <div className="relative bg-card border border-border rounded-lg sm:rounded-2xl overflow-hidden">
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-secondary/50 border-b border-border">
-                <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500/80" />
-                <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500/80" />
-                <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500/80" />
-                <span className="ml-2 sm:ml-4 text-[10px] sm:text-xs text-muted-foreground">ESP32_Fingerprint_Attendance.ino</span>
-              </div>
-              <pre className="p-3 sm:p-6 text-[11px] sm:text-sm overflow-x-auto">
-                <code className="text-foreground">{`// 24/7 Continuous Fingerprint Scanning
+const firmwareCode = `// 24/7 Continuous Fingerprint Scanning & Dual-Mode Dispatch
 if (sensorConnected && !enrollRequested) {
   uint8_t p = finger.getImage();
 
@@ -386,145 +90,302 @@ if (sensorConnected && !enrollRequested) {
     if (p == FINGERPRINT_OK) {
       int fpId = finger.fingerID;
 
-      // Check cooldown (prevent duplicate scans)
-      if (fpId == lastScannedID &&
-          millis() - lastScanTime < SCAN_COOLDOWN) {
-        return;  // Same finger, too fast
+      // Check cooldown (prevent duplicate accidental scans)
+      if (fpId == lastScannedID && millis() - lastScanTime < SCAN_COOLDOWN) {
+        return;
       }
 
       String scannedAt = getRTCDateTime();
 
-      // Build JSON payload
-      JsonDocument doc;
-      doc["fingerprint_id"] = fpId;
-      doc["scanned_at"] = scannedAt;
-
-      // POST to Laravel backend
+      // Dispatch: Online REST Post or Offline SD Card FIFO
       if (backendConnected) {
-        String response = httpPostJson(checkInURL, payload);
+        String response = httpPostJson(checkInURL, fpId, scannedAt);
         showStudent(displayName, timeStr);
         buzzerSuccess();
       } else {
-        // Offline: queue to SD card
         queueAttendance(fpId, scannedAt);
         showOfflineSaved(displayName);
         buzzerOfflineSave();
       }
     }
   }
-}`}</code>
-              </pre>
+}`
+
+function IoTSchematic() {
+  const [activeNode, setActiveNode] = useState(0)
+  const [dataPacket, setDataPacket] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveNode((prev) => (prev + 1) % 4)
+      setDataPacket((prev) => (prev + 1) % 4)
+    }, 2200)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="relative p-6 sm:p-10 min-h-[380px] sm:min-h-[420px] flex items-center justify-center">
+      <div className="w-full max-w-lg relative">
+        {/* Hardware Layer: SD Card + ESP32 side-by-side */}
+        <div className="relative mb-6 sm:mb-8">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-sm sm:max-w-md mx-auto relative">
+            {/* Node 0A: MicroSD Card Module (Offline Fallback Queue) */}
+            <div
+              className={cn(
+                "flex flex-col items-center p-3 sm:p-4 rounded-2xl transition-all duration-500",
+                "border bg-card/85 backdrop-blur-md",
+                activeNode === 0
+                  ? "border-amber-500/70 text-amber-500 shadow-[0_0_20px_-2px_rgba(245,158,11,0.25)] bg-amber-500/[0.05]"
+                  : "border-black/[0.08] dark:border-white/[0.1] text-muted-foreground"
+              )}
+            >
+              <div className="flex items-center gap-1 mb-1">
+                <HardDriveIcon style={{ fontSize: 20 }} className={activeNode === 0 ? "text-amber-500" : "text-muted-foreground"} />
+                <span className="text-[9px] font-mono font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded">
+                  SPI
+                </span>
+              </div>
+              <span className="text-xs sm:text-sm font-semibold text-foreground">SD Card Module</span>
+              <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 text-center">
+                Offline FIFO Queue
+              </span>
+            </div>
+
+            {/* Node 0B: ESP32 Device */}
+            <div
+              className={cn(
+                "flex flex-col items-center p-3 sm:p-4 rounded-2xl transition-all duration-500",
+                "border bg-card/85 backdrop-blur-md",
+                activeNode === 0
+                  ? "border-primary text-primary shadow-[0_0_24px_-4px_rgba(20,184,166,0.3)] scale-102"
+                  : "border-black/[0.08] dark:border-white/[0.1] text-muted-foreground"
+              )}
+            >
+              <CpuIcon style={{ fontSize: 22 }} className="mb-1" />
+              <span className="text-xs sm:text-sm font-semibold text-foreground">ESP32 Device</span>
+              <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 text-center">
+                AS608 + RTC + LCD
+              </span>
+            </div>
+          </div>
+
+          {/* Bi-directional SPI Bus Badge */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-card/95 border border-black/[0.08] dark:border-white/[0.1] text-[8px] font-mono text-muted-foreground shadow-sm">
+              <span className={cn("w-1.5 h-1.5 rounded-full", activeNode === 0 ? "bg-amber-500 animate-pulse" : "bg-muted-foreground/40")} />
+              <span>SPI Bus</span>
             </div>
           </div>
         </div>
-      </section></Reveal>
 
-      {/* Challenges Section */}
-      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8 sm:mb-12">
-            <p className="section-label mb-3">Technical Deep Dive</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Challenges & Solutions</h2>
+        {/* Line 1: Wi-Fi / REST Link to Backend */}
+        <div className="flex justify-center mb-6 sm:mb-8 relative">
+          <div className="w-px h-8 sm:h-10 bg-black/[0.08] dark:bg-white/[0.1] relative">
+            <div
+              className={cn(
+                "absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full transition-all duration-500",
+                dataPacket === 1 ? "bg-primary shadow-[0_0_10px_rgba(20,184,166,0.8)] top-0" : "bg-muted-foreground/30 top-1/2"
+              )}
+            />
           </div>
-          
-          <div className="space-y-4 sm:space-y-6">
-            {challenges.map((challenge, index) => (
+          <div className="absolute right-[10%] sm:right-[18%] top-1/2 -translate-y-1/2">
+            <div
+              className={cn(
+                "flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-mono transition-all duration-500",
+                dataPacket === 1 ? "bg-primary/15 text-primary border border-primary/30" : "bg-secondary/50 text-muted-foreground"
+              )}
+            >
+              <RadioIcon style={{ fontSize: 10 }} />
+              <span>Wi-Fi / REST POST</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Node 2: Laravel Backend */}
+        <div className="flex justify-center mb-6 sm:mb-8">
+          <div
+            className={cn(
+              "flex flex-col items-center p-3 sm:p-4 rounded-2xl transition-all duration-500 w-36 sm:w-48",
+              "border bg-card/85 backdrop-blur-md",
+              activeNode === 1 || activeNode === 2
+                ? "border-primary text-primary shadow-[0_0_24px_-4px_rgba(20,184,166,0.3)] scale-102"
+                : "border-black/[0.08] dark:border-white/[0.1] text-muted-foreground"
+            )}
+          >
+            <ServerIcon style={{ fontSize: 22 }} className="mb-1" />
+            <span className="text-xs sm:text-sm font-semibold text-foreground">Laravel Backend</span>
+            <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">REST API & Auth Validation</span>
+          </div>
+        </div>
+
+        {/* Line 2: PostgreSQL / WebSocket Sync */}
+        <div className="flex justify-center mb-6 sm:mb-8 relative">
+          <div className="w-px h-8 sm:h-10 bg-black/[0.08] dark:bg-white/[0.1] relative">
+            <div
+              className={cn(
+                "absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full transition-all duration-500",
+                dataPacket === 3 ? "bg-primary shadow-[0_0_10px_rgba(20,184,166,0.8)] top-0" : "bg-muted-foreground/30 top-1/2"
+              )}
+            />
+          </div>
+          <div className="absolute left-[10%] sm:left-[18%] top-1/2 -translate-y-1/2">
+            <div
+              className={cn(
+                "flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-mono transition-all duration-500",
+                dataPacket === 3 ? "bg-primary/15 text-primary border border-primary/30" : "bg-secondary/50 text-muted-foreground"
+              )}
+            >
+              <DatabaseIcon style={{ fontSize: 10 }} />
+              <span>PostgreSQL Sync</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Node 3: Nuxt.js Frontend */}
+        <div className="flex justify-center">
+          <div
+            className={cn(
+              "flex flex-col items-center p-3 sm:p-4 rounded-2xl transition-all duration-500 w-36 sm:w-48",
+              "border bg-card/85 backdrop-blur-md",
+              activeNode === 3
+                ? "border-primary text-primary shadow-[0_0_24px_-4px_rgba(20,184,166,0.3)] scale-102"
+                : "border-black/[0.08] dark:border-white/[0.1] text-muted-foreground"
+            )}
+          >
+            <MonitorIcon style={{ fontSize: 22 }} className="mb-1" />
+            <span className="text-xs sm:text-sm font-semibold text-foreground">Nuxt.js Dashboard</span>
+            <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Real-Time Attendance UI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function Scan2AttendCaseStudy() {
+  return (
+    <main className="min-h-screen bg-background pb-20">
+      <FloatingNav
+        title="Scan2Attend"
+        year="2025"
+        github="https://github.com/longmanngithub/Scan2Attend-esp"
+      />
+
+      <ProjectHero
+        category="Case Study"
+        year="2025"
+        title="Scan2"
+        titleAccent="Attend"
+        description="An IoT-powered classroom attendance system that records student check-ins via fingerprint scanning on an ESP32 device, synced to a Laravel backend with offline SD card queuing."
+        glowColor="rgba(20, 184, 166, 0.22)"
+        urlLabel="scan2attend.internal"
+      >
+        <IoTSchematic />
+      </ProjectHero>
+
+      <Reveal>
+        <BentoVitals
+          role="Firmware & IoT Engineer"
+          roleDetail="With Visoth Kim · CS 397: Internet of Everything"
+          timeline="2025 – 2026"
+          methodology="Hardware Prototyping & Modular C++"
+          architecture="Hybrid Online / Offline Queue"
+          architectureDetail="ESP32, AS608, DS3231 RTC, SD & Laravel API"
+          techStack={techStack}
+        />
+      </Reveal>
+
+      <Reveal>
+        <InteractivePipeline
+          sectionLabel="How It Works"
+          title="Attendance Pipeline"
+          description="From optical biometric scanning to real-time sync and fault-tolerant local SD queuing."
+          steps={pipelineSteps}
+        />
+      </Reveal>
+
+      {/* Hardware Wiring Specs */}
+      <Reveal>
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          <div className="mb-8 sm:mb-12 max-w-2xl">
+            <p className="font-mono text-xs uppercase tracking-[0.16em] text-primary font-semibold mb-2">
+              Hardware Engineering
+            </p>
+            <h2 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-foreground">
+              Component Wiring & Architecture
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              Peripherals mapped across hardware UART, I2C, SPI, and PWM bus interfaces.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {hardwareComponents.map((comp) => (
               <div
-                key={index}
-                className="bg-card border border-border rounded-lg sm:rounded-2xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300"
+                key={comp.name}
+                className={cn(
+                  "relative flex flex-col justify-between rounded-2xl p-4 sm:p-5",
+                  "bg-card/75 dark:bg-card/50 backdrop-blur-xl",
+                  "border border-black/[0.06] dark:border-white/[0.08]",
+                  "shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)]",
+                  "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/50 dark:before:via-white/15 before:to-transparent"
+                )}
               >
-                <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <challenge.icon className="text-[20px] sm:text-[24px] text-primary" />
-                  </div>
-                  <div className="flex-1 space-y-3 sm:space-y-4">
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground">{challenge.title}</h3>
-                    <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-destructive">Problem</p>
-                        <p className="text-muted-foreground">{challenge.problem}</p>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-primary">Solution</p>
-                        <p className="text-muted-foreground">{challenge.solution}</p>
-                      </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
+                      <CpuIcon style={{ fontSize: 16 }} />
                     </div>
+                    <span className="font-mono text-[10px] text-muted-foreground bg-secondary px-2 py-0.5 rounded-md border border-black/[0.03] dark:border-white/[0.05]">
+                      {comp.pin}
+                    </span>
                   </div>
+                  <h3 className="text-sm sm:text-base font-bold text-foreground">
+                    {comp.name}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {comp.role}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section></Reveal>
+        </section>
+      </Reveal>
 
-      {/* System Architecture Detail */}
-      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8 sm:mb-12">
-            <p className="section-label mb-3">Architecture</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">System Overview</h2>
-          </div>
-          
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4">
-                <Cpu className="text-[20px] sm:text-[24px] text-primary" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1.5 sm:mb-2">ESP32 Firmware</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                Runs a 24/7 scan loop with non-blocking timers. Manages AS608 sensor, DS3231 RTC, LCD display, SD card queue, and buzzer — all through modular header files.
-              </p>
-            </div>
-            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4">
-                <Shield className="text-[20px] sm:text-[24px] text-primary" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1.5 sm:mb-2">Laravel Backend</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                RESTful API handles check-ins, session resolution, enrollment, and attendance sync. Models the university structure with courses, sections, and sessions.
-              </p>
-            </div>
-            <div className="bg-card border border-border rounded-lg sm:rounded-2xl p-4 sm:p-6 glow-cyan-hover transition-all duration-300 sm:col-span-2 md:col-span-1">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4">
-                <Monitor className="text-[20px] sm:text-[24px] text-primary" />
-              </div>
-              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1.5 sm:mb-2">Nuxt.js Dashboard</h3>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                Admin-facing frontend for viewing attendance records, managing students, enrolling fingerprints, and monitoring device health in real time.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section></Reveal>
+      <Reveal>
+        <FeatureGrid
+          sectionLabel="Capabilities"
+          title="System Capabilities"
+          description="Built for uninterrupted campus classroom operations regardless of network outages."
+          features={features}
+          columns={4}
+        />
+      </Reveal>
 
-      {/* CTA Section */}
-      <Reveal><section className="py-12 sm:py-16 px-4 sm:px-6 bg-card/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-3 sm:mb-4">Explore the Source Code</h2>
-          <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base">
-            The project is split across two repositories — ESP32 firmware and the web platform.
-          </p>
-          <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
-            <a href="https://github.com/longmanngithub/Scan2Attend-esp" target="_blank" rel="noopener noreferrer">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 glow-cyan-hover">
-                <Github className="text-[16px] mr-2" />
-                ESP32 Firmware
-              </Button>
-            </a>
-            <a href="https://github.com/vistis/ScanToAttend-web" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" className="border-border bg-transparent">
-                <Github className="text-[16px] mr-2" />
-                Web Platform
-              </Button>
-            </a>
-            <Link href="/#contact">
-              <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-                Get In Touch
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section></Reveal>
+      <Reveal>
+        <AppleCodeViewer
+          sectionLabel="Firmware Implementation"
+          title="Scan & Offline Dispatch Loop"
+          description="Non-blocking scan loop polling AS608 image buffers and routing between online REST and offline SD storage."
+          fileName="ESP32_Fingerprint_Attendance.ino"
+          language="cpp"
+          code={firmwareCode}
+        />
+      </Reveal>
+
+      <Reveal>
+        <ChallengesGrid
+          sectionLabel="Engineering Deep Dive"
+          title="Challenges & Architectural Solutions"
+          description="Resolving bus concurrency, SD queue data integrity, and dynamic captive portal provisioning."
+          challenges={challenges}
+        />
+      </Reveal>
+
+      <Reveal>
+        <ProjectCTA />
+      </Reveal>
     </main>
   )
 }
