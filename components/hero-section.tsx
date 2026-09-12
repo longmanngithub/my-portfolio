@@ -152,9 +152,11 @@ function TypewriterTitle() {
   return (
     <h1
       className="block font-display text-4xl font-bold leading-[1.12] tracking-[-0.03em] text-foreground min-h-[2.4em] sm:min-h-[2.2em] sm:text-5xl md:text-6xl lg:text-7xl"
-      aria-label={targetTitle}
+      aria-label={`Henglong Loeung — ${targetTitle}`}
     >
-      <span className="sr-only">{targetTitle}</span>
+      <span className="sr-only">
+        Henglong Loeung — Full-Stack &amp; AI Software Engineer · {targetTitle}
+      </span>
       <span aria-hidden="true" className="inline">
         {currentText}
         <span

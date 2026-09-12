@@ -4,6 +4,8 @@ import { JetBrains_Mono, Poppins, Zalando_Sans_Expanded } from "next/font/google
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { PageTransition } from "@/components/page-transition"
+import { siteConfig } from "@/lib/site"
+import { PersonJsonLd, WebSiteJsonLd, ProfilePageJsonLd } from "@/components/json-ld"
 import "@/styles/globals.css"
 
 const jetbrainsMono = JetBrains_Mono({
@@ -44,14 +46,67 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Henglong Loeung | Portfolio",
-  description: "Computer Science Senior · Full-Stack & AI Software Engineer",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.title,
+    template: "%s | Henglong Loeung",
+  },
+  description: siteConfig.description,
+  applicationName: "Henglong Loeung Portfolio",
+  authors: [{ name: siteConfig.name, url: siteConfig.socials.github }],
+  generator: "Next.js",
+  keywords: siteConfig.keywords as unknown as string[],
+  referrer: "origin-when-cross-origin",
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
       { url: "/favicon.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/manifest.webmanifest",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteConfig.url,
+    siteName: "Henglong Loeung Portfolio",
+    title: siteConfig.title,
+    description: siteConfig.description,
+    images: [
+      {
+        url: siteConfig.ogImage,
+        width: 1200,
+        height: 630,
+        alt: "Henglong Loeung — Full-Stack & AI Software Engineer Portfolio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.title,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
+    creator: "@longmanngithub",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  category: "technology",
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
   other: {
     "format-detection": "telephone=no",
@@ -69,6 +124,11 @@ export default function RootLayout({
       className={`${jetbrainsMono.variable} ${poppins.variable} ${expandedDisplay.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <PersonJsonLd />
+        <WebSiteJsonLd />
+        <ProfilePageJsonLd />
+      </head>
       <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <PageTransition>{children}</PageTransition>
@@ -78,3 +138,4 @@ export default function RootLayout({
     </html>
   )
 }
+

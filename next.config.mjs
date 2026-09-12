@@ -117,6 +117,21 @@ const nextConfig = {
             key: "X-DNS-Prefetch-Control",
             value: "on",
           },
+          {
+            // Instruct search crawlers to index and display snippets/previews
+            key: "X-Robots-Tag",
+            value: "all, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+          },
+        ],
+      },
+      {
+        // Long-term caching for static public assets and fonts
+        source: "/(.*)\\.(ico|png|jpg|jpeg|svg|webp|woff|woff2|pdf)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
         ],
       },
     ];

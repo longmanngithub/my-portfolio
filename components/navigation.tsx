@@ -81,7 +81,7 @@ export function Navigation() {
   const isDark = mounted && resolvedTheme === "dark"
 
   return (
-    <div className="fixed left-1/2 top-5 z-50 -translate-x-1/2">
+    <nav aria-label="Main Navigation" className="fixed left-1/2 top-5 z-50 -translate-x-1/2">
       <LiquidGlass
         // The library's built-in glassBorder bakes in a hardcoded white
         // highlight/border meant for light glass — looks like a stray white
@@ -136,6 +136,6 @@ export function Navigation() {
           <ThemeToggle />
         </div>
       </LiquidGlass>
-    </div>
+    </nav>
   )
 }
