@@ -60,8 +60,8 @@ export function WebSiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${siteConfig.url}/#website`,
-    name: siteConfig.title,
-    alternateName: "Henglong Loeung Portfolio",
+    name: siteConfig.name,
+    alternateName: ["Henglong Loeung Portfolio", "Henglong"],
     url: siteConfig.url,
     description: siteConfig.description,
     author: {

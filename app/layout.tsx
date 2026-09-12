@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     template: "%s | Henglong Loeung",
   },
   description: siteConfig.description,
-  applicationName: "Henglong Loeung Portfolio",
+  applicationName: siteConfig.name,
   authors: [{ name: siteConfig.name, url: siteConfig.socials.github }],
   generator: "Next.js",
   keywords: siteConfig.keywords as unknown as string[],
@@ -64,8 +64,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/icon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
       { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
